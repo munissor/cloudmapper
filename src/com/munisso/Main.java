@@ -1,14 +1,15 @@
-package com.company;
+package com.munisso;
 
-import com.company.models.Model;
+import com.munisso.models.Model;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
+import org.apache.http.util.EntityUtils;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -25,11 +26,15 @@ public class Main {
     public static void main(String[] args) throws Exception
     {
 
+        //String dir = System.getProperty("user.dir");
+
         ObjectMapper mapper= new ObjectMapper();
 
-        File json = new File("E:\\model.json");
+        File json = new File("./Resources/azure_storage.json");
         Model model = mapper.readValue(json, Model.class);
 
+        HttpEntity entity;
+        HttpResponse resp;
 
         // Sun, 11 Oct 2009 21:49:13 GMT
         final String DATEFORMAT = "EEE, dd MMM yyyy HH:mm:ss z";
@@ -37,35 +42,96 @@ public class Main {
         final SimpleDateFormat sdf = new SimpleDateFormat(DATEFORMAT);
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         final String utcTime = sdf.format(new Date());
+        final String secret = "B7wPXLWFU4BP62Z4fKBvQfiIRsMblRkzB49CaBGms8HMwj6X6q5a1CellQeSglRcmdtQz+bgxkC0reNmu9GxPQ==";
 
+        String listUrl = "http://riccardonci.blob.core.windows.net/?comp=list";
+        String createUrl = "http://riccardonci.blob.core.windows.net/testapicontainer?restype=container";
+        String listBlobsUrl = "http://riccardonci.blob.core.windows.net/testapicontainer?restype=container&comp=list";
+        String createBlobUrl = "http://riccardonci.blob.core.windows.net/testapicontainer/myblob";
 
-        URL listUrl = new URL("http://riccardonci.blob.core.windows.net/?comp=list");
+        //URL url = new URL("http://riccardonci.blob.core.windows.net/riccardocontainer?restype=container");
 
-        URL url = new URL("http://riccardonci.blob.core.windows.net/riccardocontainer?restype=container");
+        final boolean useProxy = true;
+        HttpClientBuilder builder = HttpClientBuilder.create();
+        builder = builder.disableContentCompression().disableConnectionState();
 
-        HttpHost p = new HttpHost("localhost", 8888, "http");
-        DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(p);
-        HttpClient httpclient = HttpClientBuilder.create()/*.setRoutePlanner(routePlanner)*/.disableContentCompression().disableConnectionState().build();
+        if(useProxy)
+        {
+            HttpHost p = new HttpHost("localhost", 8888, "http");
+            DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(p);
+            builder = builder.setRoutePlanner(routePlanner);
+        }
+        HttpClient httpclient = builder.build();
+
+        // LIST CONTAINER
+        HttpRequestBase listContainer = new HttpGet(listUrl);
+        listContainer.addHeader("x-ms-date", utcTime);
+        listContainer.addHeader("x-ms-version", "2015-04-05");
+        SignRequest(listContainer, "riccardonci", secret);
+
+        resp = httpclient.execute(listContainer);
+        entity = resp.getEntity();
+        EntityUtils.consume(entity);
+
+        // PUT CONTAINER
+        HttpRequestBase createContainer = new HttpPut(createUrl);
+        createContainer.addHeader("x-ms-date", utcTime);
+        createContainer.addHeader("x-ms-version", "2015-04-05");
+        SignRequest(createContainer, "riccardonci", secret);
+
+        //resp = httpclient.execute(createContainer);
+        //entity = resp.getEntity();
+        // EntityUtils.consume(entity);
+
+        // LIST BLOBS CONTAINER
+        HttpRequestBase listBlobs = new HttpGet(listBlobsUrl);
+        listBlobs.addHeader("x-ms-date", utcTime);
+        listBlobs.addHeader("x-ms-version", "2015-04-05");
+        SignRequest(listBlobs, "riccardonci", secret);
+
+        resp = httpclient.execute(listBlobs);
+        entity = resp.getEntity();
+        EntityUtils.consume(entity);
+
+        // PUT BLOB CONTAINER
+        HttpPut createBlob = new HttpPut(createBlobUrl);
+        createBlob.addHeader("x-ms-blob-type", "BlockBlob");
+        createBlob.addHeader("x-ms-date", utcTime);
+        createBlob.addHeader("x-ms-version", "2015-04-05");
+
+        HttpEntity body =  new StringEntity("test blob", "UTF-8");
+        //createBlpp--ob.addHeader("Content-Length", Long.toString(body.getContentLength()));
+        createBlob.setEntity(body);
+        Header[] h = createBlob.getAllHeaders();
+        //createBlob.completed();
+
+        SignRequest(createBlob, "riccardonci", secret);
+
+        resp = httpclient.execute(createBlob);
+        entity = resp.getEntity();
+        EntityUtils.consume(entity);
+
 
         HttpRequestBase httpost = new HttpDelete("http://riccardonci.blob.core.windows.net/test5?restype=container");
 
         httpost.addHeader("x-ms-date", utcTime);
         httpost.addHeader("x-ms-version", "2015-04-05");
 
-        String secret = "B7wPXLWFU4BP62Z4fKBvQfiIRsMblRkzB49CaBGms8HMwj6X6q5a1CellQeSglRcmdtQz+bgxkC0reNmu9GxPQ==";
+        SignRequest(httpost, "riccardonci", secret);
 
-        String sign = SignRequest(httpost, "riccardonci", secret);
+        resp = httpclient.execute(httpost);
 
-        HttpResponse resp = httpclient.execute(httpost);
+        entity = resp.getEntity();
 
-        HttpEntity entity = resp.getEntity();
-        System.out.println("Request Handled?: " + resp.getStatusLine());
-        InputStream in = entity.getContent();
+//        System.out.println("Request Handled?: " + resp.getStatusLine());
+//        InputStream in = entity.getContent();
 
 
     }
+
+
     
-    private static String SignRequest(HttpRequestBase request, String accountName, String sharedKey) throws NoSuchAlgorithmException, InvalidKeyException
+    private static void SignRequest(HttpRequestBase request, String accountName, String sharedKey) throws NoSuchAlgorithmException, InvalidKeyException
     {
         StringBuffer buffer = new StringBuffer(request.getMethod());
         AppendHeaderValue(buffer, request, "Content-Encoding");
@@ -85,8 +151,6 @@ public class Main {
         String hash = HashRequestString(buffer.toString(), sharedKey);
 
         request.addHeader("Authorization", "SharedKey " + accountName + ":" + hash);
-
-        return buffer.toString();
     }
 
     private static String HashRequestString(String stringToSign, String sharedKey) throws NoSuchAlgorithmException, InvalidKeyException
@@ -125,12 +189,7 @@ public class Main {
     {
         StringBuffer buffer = new StringBuffer();
         Header[] headers = request.getAllHeaders();
-        Arrays.sort(headers, new Comparator<Header>() {
-            @Override
-            public int compare(Header o1, Header o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
+        Arrays.sort(headers, (o1, o2) -> o1.getName().compareTo(o2.getName()));
 
         for (Header item : headers) {
             String lcName = item.getName().toLowerCase();
@@ -157,6 +216,8 @@ public class Main {
         buffer.append(requestUri.getPath());
 
         List<NameValuePair> params = URLEncodedUtils.parse(requestUri, "UTF-8");
+        params.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
+
         for (NameValuePair pair : params ) {
             AppendValue(buffer, pair.getName() + ":" + pair.getValue());
         }

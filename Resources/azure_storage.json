@@ -3,7 +3,9 @@
   "service": "Storage",
   "serviceType": "Blob",
   "operations": [
-    {"name": "ListContainers"},
+    {
+      "name": "ListContainers"
+    },
     {
       "name": "PutContainer",
       "request": {
