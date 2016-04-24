@@ -3,6 +3,7 @@
   "service": "Storage",
   "serviceType": "Blob",
   "operations": [
+    {"name": "ListContainers"},
     {
       "name": "PutContainer",
       "request": {
@@ -86,6 +87,13 @@
         ],
         "body": null
       }
-    }
+    },
+    {"name": "GetContainerProperties"},
+    {"name": "GetContainerMetadata"},
+    {"name": "SetContainerMetadata"},
+    {"name": "GetContainerACL"},
+    {"name": "SetContainerACL"},
+    {"name": "LeaseContainer"},
+    {"name": "ListBlobs"}
   ]
 }
