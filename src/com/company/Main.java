@@ -39,6 +39,8 @@ public class Main {
         final String utcTime = sdf.format(new Date());
 
 
+        URL listUrl = new URL("http://riccardonci.blob.core.windows.net/?comp=list");
+
         URL url = new URL("http://riccardonci.blob.core.windows.net/riccardocontainer?restype=container");
 
         HttpHost p = new HttpHost("localhost", 8888, "http");
@@ -50,35 +52,8 @@ public class Main {
         httpost.addHeader("x-ms-date", utcTime);
         httpost.addHeader("x-ms-version", "2015-04-05");
 
-        
-        //x = httpost.getHeaders("x-ms-version");
-
         String secret = "B7wPXLWFU4BP62Z4fKBvQfiIRsMblRkzB49CaBGms8HMwj6X6q5a1CellQeSglRcmdtQz+bgxkC0reNmu9GxPQ==";
-            //System.in.read();
-            String stringToSign = "DELETE" + "\n" +
-                /*Content-Encoding +*/ "\n" +
-                /*Content-Language +*/ "\n" +
-                "\n" +
-                /*Content-MD5 +*/ "\n" +
-                /*Content-Type +*/ "\n" +
-                "\n" +
-                /*If-Modified-Since +*/ "\n" +
-                /*If-Match +*/ "\n" +
-                /*If-None-Match +*/ "\n" +
-                /*If-Unmodified-Since +*/ "\n" +
-                /*Range +*/ "\n" +
-                    "x-ms-date:"+ utcTime + "\n" + "x-ms-version:2015-04-05" + "\n" +
-                    "/riccardonci/test5\nrestype:container";
 
-            final Charset asciiCs = Charset.forName("UTF-8");
-            Mac hmacSha256 = Mac.getInstance("HmacSHA256");
-            final SecretKeySpec secret_key = new javax.crypto.spec.SecretKeySpec(Base64.getDecoder().decode(secret), "HmacSHA256");
-            hmacSha256.init(secret_key);
-            final byte[] mac_data = hmacSha256.doFinal(stringToSign.getBytes(asciiCs));
-            String result = Base64.getEncoder().encodeToString(mac_data);
-
-
-        httpost.addHeader("Authorizationx", "SharedKey riccardonci:"+result);
         String sign = SignRequest(httpost, "riccardonci", secret);
 
         HttpResponse resp = httpclient.execute(httpost);
@@ -86,6 +61,8 @@ public class Main {
         HttpEntity entity = resp.getEntity();
         System.out.println("Request Handled?: " + resp.getStatusLine());
         InputStream in = entity.getContent();
+
+
     }
     
     private static String SignRequest(HttpRequestBase request, String accountName, String sharedKey) throws NoSuchAlgorithmException, InvalidKeyException
