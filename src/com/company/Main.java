@@ -22,12 +22,13 @@ import java.util.*;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InvalidKeyException{
+    public static void main(String[] args) throws Exception
+    {
 
-            ObjectMapper mapper= new ObjectMapper();
+        ObjectMapper mapper= new ObjectMapper();
 
-            File json = new File("E:\\model.json");
-            Model model = mapper.readValue(json, Model.class);
+        File json = new File("E:\\model.json");
+        Model model = mapper.readValue(json, Model.class);
 
 
         // Sun, 11 Oct 2009 21:49:13 GMT
