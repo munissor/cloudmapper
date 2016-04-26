@@ -9,6 +9,8 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
+
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import javax.crypto.Mac;
@@ -20,10 +22,11 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class Main {
 
-    public static void main(String[] args) throws Exception
+    public static void xmain(String[] args) throws Exception
     {
 
         //String dir = System.getProperty("user.dir");
@@ -51,7 +54,7 @@ public class Main {
 
         //URL url = new URL("http://riccardonci.blob.core.windows.net/riccardocontainer?restype=container");
 
-        final boolean useProxy = true;
+        final boolean useProxy = false;
         HttpClientBuilder builder = HttpClientBuilder.create();
         builder = builder.disableContentCompression().disableConnectionState();
 
@@ -61,13 +64,25 @@ public class Main {
             DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(p);
             builder = builder.setRoutePlanner(routePlanner);
         }
+
+        builder.addInterceptorLast((HttpRequestInterceptor) (request, context) -> {
+            try {
+                SignRequest(request, "riccardonci", secret);
+            }
+            catch (Exception e){
+
+            }
+
+        });
+
         HttpClient httpclient = builder.build();
+
 
         // LIST CONTAINER
         HttpRequestBase listContainer = new HttpGet(listUrl);
         listContainer.addHeader("x-ms-date", utcTime);
         listContainer.addHeader("x-ms-version", "2015-04-05");
-        SignRequest(listContainer, "riccardonci", secret);
+        //SignRequest(listContainer, "riccardonci", secret);
 
         resp = httpclient.execute(listContainer);
         entity = resp.getEntity();
@@ -77,7 +92,7 @@ public class Main {
         HttpRequestBase createContainer = new HttpPut(createUrl);
         createContainer.addHeader("x-ms-date", utcTime);
         createContainer.addHeader("x-ms-version", "2015-04-05");
-        SignRequest(createContainer, "riccardonci", secret);
+        //SignRequest(createContainer, "riccardonci", secret);
 
         //resp = httpclient.execute(createContainer);
         //entity = resp.getEntity();
@@ -87,7 +102,7 @@ public class Main {
         HttpRequestBase listBlobs = new HttpGet(listBlobsUrl);
         listBlobs.addHeader("x-ms-date", utcTime);
         listBlobs.addHeader("x-ms-version", "2015-04-05");
-        SignRequest(listBlobs, "riccardonci", secret);
+        //SignRequest(listBlobs, "riccardonci", secret);
 
         resp = httpclient.execute(listBlobs);
         entity = resp.getEntity();
@@ -99,13 +114,17 @@ public class Main {
         createBlob.addHeader("x-ms-date", utcTime);
         createBlob.addHeader("x-ms-version", "2015-04-05");
 
+
+        createBlob.addHeader("x-ms-date", utcTime);
+
         HttpEntity body =  new StringEntity("test blob", "UTF-8");
-        //createBlpp--ob.addHeader("Content-Length", Long.toString(body.getContentLength()));
+        //createBlob.addHeader("Content-Length", Long.toString(body.getContentLength()));
+
         createBlob.setEntity(body);
         Header[] h = createBlob.getAllHeaders();
         //createBlob.completed();
 
-        SignRequest(createBlob, "riccardonci", secret);
+        //SignRequest(createBlob, "riccardonci", secret);
 
         resp = httpclient.execute(createBlob);
         entity = resp.getEntity();
@@ -131,9 +150,10 @@ public class Main {
 
 
     
-    private static void SignRequest(HttpRequestBase request, String accountName, String sharedKey) throws NoSuchAlgorithmException, InvalidKeyException
+    private static void SignRequest(HttpRequest request, String accountName, String sharedKey) throws Exception
     {
-        StringBuffer buffer = new StringBuffer(request.getMethod());
+
+        StringBuffer buffer = new StringBuffer(request.getRequestLine().getMethod());
         AppendHeaderValue(buffer, request, "Content-Encoding");
         AppendHeaderValue(buffer, request, "Content-Language");
         AppendHeaderValue(buffer, request, "Content-Length");
@@ -170,7 +190,7 @@ public class Main {
         buffer.append(value);
     }
     
-    private static void AppendHeaderValue(StringBuffer buffer, HttpRequestBase request, String headerName)
+    private static void AppendHeaderValue(StringBuffer buffer, HttpRequest request, String headerName)
     {
         Header header = request.getFirstHeader(headerName);
         String value;
@@ -185,7 +205,7 @@ public class Main {
         AppendValue(buffer, value);
     }
     
-    private static String BuildCanonicalizedHeaders(HttpRequestBase request)
+    private static String BuildCanonicalizedHeaders(HttpRequest request)
     {
         StringBuffer buffer = new StringBuffer();
         Header[] headers = request.getAllHeaders();
@@ -207,15 +227,16 @@ public class Main {
         return buffer.toString();
     }
 
-    private static String BuildCanonicalizedResource(HttpRequestBase request, String accountName)
+    private static String BuildCanonicalizedResource(HttpRequest request, String accountName) throws Exception
     {
         StringBuffer buffer = new StringBuffer("/");
         buffer.append(accountName);
-        URI requestUri = request.getURI();
+        String requestUri = request.getRequestLine().getUri();
+        URI uri = new URI(requestUri);
 
-        buffer.append(requestUri.getPath());
+        buffer.append(uri.getPath());
 
-        List<NameValuePair> params = URLEncodedUtils.parse(requestUri, "UTF-8");
+        List<NameValuePair> params = URLEncodedUtils.parse(uri, "UTF-8");
         params.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
 
         for (NameValuePair pair : params ) {
