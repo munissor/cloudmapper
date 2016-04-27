@@ -1,0 +1,99 @@
+{
+  "provider": "AWS",
+  "service": "Storage",
+  "serviceType": "Blob",
+  "operations": [
+    {
+      "name": "ListContainers"
+    },
+    {
+      "name": "PutContainer",
+      "request": {
+        "verb": "PUT",
+        "url": "{account}.blob.core.windows.net/{name}",
+        "urlReplacements": [
+          {
+            "name": "account",
+            "logicalName": "AccountName",
+            "type": "DnsString"
+          },
+          {
+            "name": "name",
+            "logicalName": "ObjectName",
+            "type": "DnsString"
+          }
+        ],
+        "queryString": [
+          {
+            "name": "restype",
+            "logicalName": "ObjectType",
+            "type": "Constant",
+            "value": "container"
+          },
+          {
+            "name": "timeout",
+            "logicalName": "OperationTimeout",
+            "type": "Number",
+            "optional": true
+          }
+        ],
+        "headers":[
+
+        ],
+        "body": null
+      },
+      "response": {
+        "headers": [
+        ],
+        "body": null
+      }
+    },
+    {
+      "name": "DeleteContainer",
+      "request": {
+        "verb": "DELETE",
+        "url": "{account}.blob.core.windows.net/{name}",
+        "urlReplacements": [
+          {
+            "name": "account",
+            "logicalName": "AccountName",
+            "type": "DnsString"
+          },
+          {
+            "name": "name",
+            "logicalName": "ObjectName",
+            "type": "DnsString"
+          }
+        ],
+        "queryString": [
+          {
+            "name": "restype",
+            "logicalName": "ObjectType",
+            "type": "Constant",
+            "value": "container"
+          },
+          {
+            "name": "timeout",
+            "logicalName": "OperationTimeout",
+            "type": "Number",
+            "optional": true
+          }
+        ],
+        "headers":[
+
+        ],
+        "body": null
+      },
+      "response": {
+        "headers": [
+        ],
+        "body": null
+      }
+    },
+    {"name": "GetContainerProperties"},
+    {"name": "GetContainerMetadata"},
+    {"name": "SetContainerMetadata"},
+    {"name": "GetContainerACL"}
+
+  ]
+}

@@ -31,10 +31,7 @@ public class Main {
 
         //String dir = System.getProperty("user.dir");
 
-        ObjectMapper mapper= new ObjectMapper();
 
-        File json = new File("./Resources/azure_storage.json");
-        Model model = mapper.readValue(json, Model.class);
 
         HttpEntity entity;
         HttpResponse resp;

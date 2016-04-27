@@ -38,7 +38,8 @@ class IndentedPrintWriter(writer: PrintWriter) {
     this.writer.println(s);
   }
 
-  def printLn(s: String, args: Any*): Unit = {
-    this.printLn(String.format(s, args));
+  def printLn(s: String, args: Object*): Unit = {
+    val f = String.format(s, args: _*);
+    this.printLn(f);
   }
 }

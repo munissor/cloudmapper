@@ -2,7 +2,7 @@ package com.munisso
 
 import java.io.{File, PrintWriter}
 
-import com.munisso.models.Model
+import com.munisso.models.{Model, Request}
 
 
 /**
@@ -14,9 +14,11 @@ class ModelMapper {
     val printWriter = new PrintWriter(file)
     val indentedWriter = new IndentedPrintWriter(printWriter)
     source.operations.foreach(operation => {
-      try{
+      //try{
 
-        indentedWriter.printLn("ROUTE '%1', '%2'", operation.name, operation.request.url)
+        val req = if (operation.request == null) new Request() else operation.request
+
+        indentedWriter.printLn("ROUTE \'%s\', \'%s\', \'%s\'", operation.name, req.verb, req.url)
         indentedWriter.increaseIndent()
 
         // Find the matching operation in the destination model
@@ -25,18 +27,23 @@ class ModelMapper {
           indentedWriter.printLn("ERROR 'Operation missing from destination provider'")
         }
         else{
-          val destOperation = dop.get;
+          val destOperation = dop.get
           // TODO: map arguments here
         }
 
-      }
-      finally {
+      //}
+      //catch{
+      //  case e: Exception => {
+      //
+      //  }
+      //}
+      // {
         indentedWriter.decreaseIndent()
-      }
+      //}
 
-    });
-    printWriter.flush();
-    printWriter.close();
+    })
+    printWriter.flush()
+    printWriter.close()
   }
 
   /*
