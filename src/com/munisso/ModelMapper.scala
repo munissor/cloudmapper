@@ -1,8 +1,7 @@
 package com.munisso
 
 import java.io.{File, PrintWriter}
-
-import com.munisso.models.{Model, Request}
+import com.munisso.models._
 
 
 /**
@@ -10,12 +9,45 @@ import com.munisso.models.{Model, Request}
   */
 class ModelMapper {
 
+  private def extractArgumentsRequest(writer: IndentedPrintWriter, source: String, parameters: Array[Parameter]): Unit = {
+    if(parameters != null) {
+      parameters.foreach( h => {
+        writer.printLn("REQEXTRACT '%s', '%s', '%s', '%s'", source, h.logicalName, h.`type`.toString, h.optional.toString )
+      })
+    }
+  }
+
+  private def useArgumentsRequest(writer: IndentedPrintWriter, source: String, parameters: Array[Parameter]): Unit = {
+    if(parameters != null) {
+      parameters.foreach( h => {
+        writer.printLn("REQUSE '%s', '%s', '%s', '%s'", source, h.logicalName, h.`type`.toString, h.optional.toString )
+      })
+    }
+  }
+
+  private def extractArgumentsResponse(writer: IndentedPrintWriter, source: String, parameters: Array[Parameter]): Unit = {
+    if(parameters != null) {
+      parameters.foreach( h => {
+        writer.printLn("RESEXTRACT '%s', '%s', '%s', '%s'", source, h.logicalName, h.`type`.toString, h.optional.toString )
+      })
+    }
+  }
+
+  private def useArgumentsResponse(writer: IndentedPrintWriter, source: String, parameters: Array[Parameter]): Unit = {
+    if(parameters != null) {
+      parameters.foreach( h => {
+        writer.printLn("RESUSE '%s', '%s', '%s', '%s'", source, h.logicalName, h.`type`.toString, h.optional.toString )
+      })
+    }
+  }
+
   def mapModels(source: Model, destination: Model, file: File): Unit = {
     val printWriter = new PrintWriter(file)
     val indentedWriter = new IndentedPrintWriter(printWriter)
     source.operations.foreach(operation => {
       //try{
 
+        // TODO: remove this
         val req = if (operation.request == null) new Request() else operation.request
 
         indentedWriter.printLn("ROUTE \'%s\', \'%s\', \'%s\'", operation.name, req.verb, req.url)
@@ -28,7 +60,40 @@ class ModelMapper {
         }
         else{
           val destOperation = dop.get
-          // TODO: map arguments here
+          val sourceMap = Map[String, Parameter]()
+
+          // PARSE SOURCE REQUEST
+          extractArgumentsRequest(indentedWriter, "url", operation.request.urlReplacements)
+          extractArgumentsRequest(indentedWriter, "header", operation.request.headers)
+          extractArgumentsRequest(indentedWriter, "query", operation.request.queryString)
+          // TODO: how do we extract body
+
+          // TODO: convert types
+
+          // BUILD DESTINATION REQUEST
+          indentedWriter.printLn("REQUEST \'%s\', \'%s\'", destOperation.request.url, destOperation.request.verb )
+
+          useArgumentsRequest(indentedWriter, "url", destOperation.request.urlReplacements)
+          useArgumentsRequest(indentedWriter, "header", destOperation.request.headers)
+          useArgumentsRequest(indentedWriter, "query", destOperation.request.queryString)
+          // TODO: build body
+
+          // SEND REQUEST
+          indentedWriter.printLn("SEND REQUEST")
+
+          // PARSE DESTINATION RESPONSE
+          extractArgumentsResponse(indentedWriter, "header", destOperation.response.headers)
+          // TODO: how do we extract body
+
+          // TODO: convert types
+
+          // BUILD DESTINATION RESPONE
+          useArgumentsResponse(indentedWriter, "header", operation.response.headers)
+          // TODO: build body
+
+          // RETURN
+          indentedWriter.printLn("RETURN")
+          indentedWriter.printLn("")
         }
 
       //}
