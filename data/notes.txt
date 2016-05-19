@@ -1,0 +1,2 @@
+All HTTP dates should be represented according to RFC1123 (or RFC2616).
+According to RFC2616 all HTTP dates MUST be represented in GMT.

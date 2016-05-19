@@ -10,35 +10,29 @@
       "name": "PutContainer",
       "request": {
         "verb": "PUT",
-        "url": "{account}.blob.core.windows.net/{name}",
+        "url": "{name}.s3.amazonaws.com",
         "urlReplacements": [
-          {
-            "name": "account",
-            "logicalName": "AccountName",
-            "type": "DnsString"
-          },
           {
             "name": "name",
             "logicalName": "ObjectName",
-            "type": "DnsString"
+            "kind": "String",
+            "format": "DnsString"
           }
         ],
         "queryString": [
-          {
-            "name": "restype",
-            "logicalName": "ObjectType",
-            "type": "Constant",
-            "value": "container"
-          },
-          {
-            "name": "timeout",
-            "logicalName": "OperationTimeout",
-            "type": "Number",
-            "optional": true
-          }
+
         ],
         "headers":[
-
+          {
+            "name": "Authorization",
+            "logicalName": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date"
+          }
         ],
         "body": null
       },
@@ -57,25 +51,25 @@
           {
             "name": "account",
             "logicalName": "AccountName",
-            "type": "DnsString"
+            "kind": "String"
           },
           {
             "name": "name",
             "logicalName": "ObjectName",
-            "type": "DnsString"
+            "kind": "String"
           }
         ],
         "queryString": [
           {
             "name": "restype",
             "logicalName": "ObjectType",
-            "type": "Constant",
+            "kind": "Constant",
             "value": "container"
           },
           {
             "name": "timeout",
             "logicalName": "OperationTimeout",
-            "type": "Number",
+            "kind": "Number",
             "optional": true
           }
         ],
@@ -89,6 +83,69 @@
         ],
         "body": null
       }
+    },
+    {
+      "name": "ListObjects",
+      "request": {
+        "verb": "TODO",
+        "url": "{account}.blob.core.windows.net/{name}",
+        "urlReplacements": [
+          {
+            "name": "account",
+            "logicalName": "AccountName",
+            "kind": "String"
+          },
+          {
+            "name": "name",
+            "logicalName": "ObjectName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+          {
+            "name": "restype",
+            "logicalName": "ObjectType",
+            "kind": "Constant",
+            "value": "container"
+          },
+          {
+            "name": "timeout",
+            "logicalName": "OperationTimeout",
+            "kind": "Number",
+            "optional": true
+          }
+        ],
+        "headers":[
+
+        ],
+        "body": null
+      },
+      "response": {
+        "headers": [
+        ],
+        "body": {
+          "logicalName": "asasd",
+          "kind": "Object",
+          "properties": [
+            {
+              "name": "Name",
+              "kind": "String",
+              "logicalName": "Name",
+            },
+            {
+              "name": "Contents",
+              "kind": "List",
+              "logicalName": "Blobs",
+              "properties": [
+                {
+                  "name: "Key",
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
     },
     {"name": "GetContainerProperties", "request": {}, "response" :{}},
     {"name": "GetContainerMetadata", "request": {}, "response" :{}},

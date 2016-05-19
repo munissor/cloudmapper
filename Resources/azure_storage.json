@@ -2,6 +2,37 @@
   "provider": "Azure",
   "service": "Storage",
   "serviceType": "Blob",
+  "configuration": [
+    { "key": "account", "value": "USER PROVIDED" },
+    { "key": "authorizationScheme", "value": "SharedKey" },
+    { "key": "x-ms-version", "value": "2015-04-05" }
+  ],
+  "signature" :{
+    "algorithm": "HmacSHA256",
+    "encoding": "base64",
+    "format": "{authorizationScheme} {account}:{signature}",
+    "separator": "\n",
+    "itemFormat": "{name}:{value}",
+    "items":[
+      { "location": "verb", "format": "{value}"},
+      { "location": "header", "name": "Content-Encoding" },
+      { "location": "header", "name": "Content-Language" },
+      { "location": "header", "name": "Content-Length" },
+      { "location": "header", "name": "Content-MD5" },
+      { "location": "header", "name": "Content-Type" },
+      { "location": "header", "name": "Date" },
+      { "location": "header", "name": "If-Modified-Since" },
+      { "location": "header", "name": "If-Match" },
+      { "location": "header", "name": "If-None-Match" },
+      { "location": "header", "name": "If-Unmodified-Since" },
+      { "location": "header", "name": "Range" },
+      { "location": "header", "name": "x-ms-", "matchType": "startsWith" },
+      { "location": "header", "name": "x-ms-", "matchType": "startsWith" },
+      { "location": "url", "name": "account", "format": "/{value}" },
+      { "location": "path", "format": "{value}" },
+      { "location": "queryString", "matchType": "any" }
+    ]
+  },
   "operations": [
     {
       "name": "ListContainers", "request": {}, "response" : {}
@@ -15,35 +46,89 @@
           {
             "name": "account",
             "logicalName": "AccountName",
-            "type": "DnsString"
+            "kind": "String"
           },
           {
             "name": "name",
             "logicalName": "ObjectName",
-            "type": "DnsString"
+            "kind": "String"
           }
         ],
         "queryString": [
           {
             "name": "restype",
             "logicalName": "ObjectType",
-            "type": "Constant",
+            "kind": "Constant",
             "value": "container"
           },
           {
             "name": "timeout",
             "logicalName": "OperationTimeout",
-            "type": "Number",
+            "kind": "Number",
             "optional": true
           }
         ],
         "headers":[
-
+          {
+            "name": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "x-ms-date",
+            "aliases": ["Date"],
+            "logicalName": "Date",
+            "kind": "Date"
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19"
+          },
+          {
+            "name": "x-ms-blob-public-access",
+            "logicalName": "PublicAccess",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "x-ms-client-request-id",
+            "logicalName": "RequestId",
+            "kind": "String",
+            "optional": true
+          }
         ],
         "body": null
       },
       "response": {
         "headers": [
+          {
+            "name": "ETag",
+            "logicalName": "RequestId",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "Last-Modified",
+            "kind": "Date",
+            "optional": true
+          },
+          {
+            "name": "x-ms-request-id",
+            "logicalName": "RequestId",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ServiceVersion",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "Date",
+            "kind": "Date"
+          }
         ],
         "body": null
       }
@@ -57,25 +142,25 @@
           {
             "name": "account",
             "logicalName": "AccountName",
-            "type": "DnsString"
+            "kind": "String"
           },
           {
             "name": "name",
             "logicalName": "ObjectName",
-            "type": "DnsString"
+            "kind": "String"
           }
         ],
         "queryString": [
           {
             "name": "restype",
             "logicalName": "ObjectType",
-            "type": "Constant",
+            "kind": "Constant",
             "value": "container"
           },
           {
             "name": "timeout",
             "logicalName": "OperationTimeout",
-            "type": "Number",
+            "kind": "Number",
             "optional": true
           }
         ],
