@@ -130,22 +130,21 @@
             {
               "name": "Name",
               "kind": "String",
-              "logicalName": "Name",
+              "logicalName": "Name"
             },
             {
               "name": "Contents",
-              "kind": "List",
+              "kind": "Object",
               "logicalName": "Blobs",
               "properties": [
                 {
-                  "name: "Key",
+                  "name": "Key"
                 }
               ]
             }
           ]
         }
       }
-    }
     },
     {"name": "GetContainerProperties", "request": {}, "response" :{}},
     {"name": "GetContainerMetadata", "request": {}, "response" :{}},

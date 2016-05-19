@@ -13,5 +13,5 @@ public class Request {
 
     public Parameter[] headers;
 
-    public Body body;
+    public Parameter body;
 }

@@ -6,5 +6,7 @@ import java.util.*;
  * Created by rmunisso on 02/05/2016.
  */
 public class Mapping {
+    public Signature signature;
+    public Configuration[] configurations;
     public List<Route> routes = new ArrayList<>();
 }

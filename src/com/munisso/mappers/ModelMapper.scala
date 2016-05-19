@@ -39,6 +39,8 @@ class ModelMapper {
   def mapModels(source: Model, destination: Model): Mapping = {
 
     val mapping = new Mapping
+    mapping.configurations = destination.configurations
+    mapping.signature = destination.signature
 
     source.operations.foreach(srcOperation => {
 
@@ -49,7 +51,6 @@ class ModelMapper {
         val dop = destination.operations.find( _.name == srcOperation.name )
         if (dop.isEmpty) {
           route.routeError = new MappingError("Operation missing from destination provider")
-          //indentedWriter.printLn("ERROR 'Operation missing from destination provider'")
         }
         else {
           val destOperation = dop.get
