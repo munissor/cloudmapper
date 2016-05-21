@@ -21,7 +21,17 @@ class NodeGenerator extends Generator {
 
     l.append(generateProxy(mapping))
 
+    l.append(readResource("signature.js"))
+
     l.toList
+  }
+
+  private def readResource(resource: String): CodeFile = {
+    val pkg = new CodeFile()
+    pkg.name = resource
+    pkg.code = scala.io.Source.fromFile("./Resources/NodeGenerator/" + resource ).mkString
+
+    return pkg
   }
 
   private def generatePackage(): CodeFile = {
@@ -42,7 +52,9 @@ class NodeGenerator extends Generator {
     indentedWriter.increaseIndent()
 
     indentedWriter.printLn("\"restify\": \"*\",")
-    indentedWriter.printLn("\"config\": \"*\"")
+    indentedWriter.printLn("\"config\": \"*\",")
+    // TODO: make these dependency optional depending on whether they are needed or not
+    indentedWriter.printLn("\"aws-signer-v4\": \"*\"")
     indentedWriter.decreaseIndent()
     indentedWriter.printLn("}")
 
@@ -74,7 +86,7 @@ class NodeGenerator extends Generator {
     return pkg
   }
 
-  private def generateRoute(route: Route, indentedPrintWriter: IndentedPrintWriter): Unit = {
+  private def generateRoute(mapping: Mapping, route: Route, indentedPrintWriter: IndentedPrintWriter): Unit = {
 
     if (route.url == null)
       return
@@ -121,7 +133,8 @@ class NodeGenerator extends Generator {
     indentedPrintWriter.printLn()
     indentedPrintWriter.printLn("var client = restify.createStringsClient({")
     indentedPrintWriter.increaseIndent()
-    indentedPrintWriter.printLn("url: %s", buildRequestUrl(route))
+    indentedPrintWriter.printLn("url: %s,", buildRequestUrl(route))
+    indentedPrintWriter.printLn("signRequest: signature.buildSignature('%s')", mapping.signature )
     indentedPrintWriter.decreaseIndent()
     indentedPrintWriter.printLn("});")
 
@@ -171,12 +184,13 @@ class NodeGenerator extends Generator {
 
     indentedWriter.printLn("var restify = require('restify');")
     indentedWriter.printLn("var config = require('config');")
+    indentedWriter.printLn("var signature = require('./signature');")
     indentedWriter.printLn("")
     indentedWriter.printLn("var server = restify.createServer();")
     indentedWriter.printLn("server.use(restify.queryParser());")
     indentedWriter.printLn("")
 
-    mapping.routes.asScala.foreach(r => generateRoute(r, indentedWriter) )
+    mapping.routes.asScala.foreach(r => generateRoute(mapping, r, indentedWriter) )
 
     indentedWriter.printLn("")
     indentedWriter.printLn("server.listen(config.port, function() {")

@@ -24,7 +24,6 @@ object Program {
 
 
 
-
      val mapping = modelMapper.mapModels(azureModel, awsModel)
 
      val out = new FileWriter("./output.mapper")

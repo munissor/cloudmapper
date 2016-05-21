@@ -7,7 +7,7 @@ public class Model {
     public String provider;
     public String service;
     public String serviceType;
-    public Signature signature;
+    public String signature;
     public Operation[] operations;
     public Configuration[] configurations;
 }

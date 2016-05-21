@@ -2,6 +2,7 @@
   "provider": "AWS",
   "service": "Storage",
   "serviceType": "Blob",
+  "signature": "aws-v4",
   "operations": [
     {
       "name": "ListContainers", "request": {}, "response" :{}
@@ -10,7 +11,7 @@
       "name": "PutContainer",
       "request": {
         "verb": "PUT",
-        "url": "{name}.s3.amazonaws.com",
+        "url": "s3.amazonaws.com/{name}",
         "urlReplacements": [
           {
             "name": "name",

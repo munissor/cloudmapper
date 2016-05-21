@@ -1,2 +1,34 @@
 All HTTP dates should be represented according to RFC1123 (or RFC2616).
 According to RFC2616 all HTTP dates MUST be represented in GMT.
+
+https://github.com/r7kamura/aws-signer-v4
+
+backup azure signature
+
+
+"signature" :{
+    "algorithm": "HmacSHA256",
+    "encoding": "Base64",
+    "format": "{authorizationScheme} {account}:{signature}",
+    "separator": "\n",
+    "itemFormat": "{name}:{value}",
+    "items":[
+      { "location": "verb", "format": "{value}"},
+      { "location": "header", "name": "Content-Encoding" },
+      { "location": "header", "name": "Content-Language" },
+      { "location": "header", "name": "Content-Length" },
+      { "location": "header", "name": "Content-MD5" },
+      { "location": "header", "name": "Content-Type" },
+      { "location": "header", "name": "Date" },
+      { "location": "header", "name": "If-Modified-Since" },
+      { "location": "header", "name": "If-Match" },
+      { "location": "header", "name": "If-None-Match" },
+      { "location": "header", "name": "If-Unmodified-Since" },
+      { "location": "header", "name": "Range" },
+      { "location": "header", "name": "x-ms-", "matchType": "StartsWith" },
+      { "location": "header", "name": "x-ms-", "matchType": "StartsWith" },
+      { "location": "url", "name": "account", "format": "/{value}" },
+      { "location": "path", "format": "{value}" },
+      { "location": "queryString", "matchType": "Any" }
+    ]
+  }
