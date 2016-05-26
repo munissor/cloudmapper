@@ -21,7 +21,7 @@ import java.util.*;
 
 public class Main {
 
-    public static void xmain(String[] args) throws Exception
+    public static void main(String[] args) throws Exception
     {
 
         //String dir = System.getProperty("user.dir");
@@ -39,10 +39,10 @@ public class Main {
         final String utcTime = sdf.format(new Date());
         final String secret = "B7wPXLWFU4BP62Z4fKBvQfiIRsMblRkzB49CaBGms8HMwj6X6q5a1CellQeSglRcmdtQz+bgxkC0reNmu9GxPQ==";
 
-        String listUrl = "http://riccardonci.blob.core.windows.net/?comp=list";
-        String createUrl = "http://riccardonci.blob.core.windows.net/testapicontainer?restype=container";
-        String listBlobsUrl = "http://riccardonci.blob.core.windows.net/testapicontainer?restype=container&comp=list";
-        String createBlobUrl = "http://riccardonci.blob.core.windows.net/testapicontainer/myblob";
+        String listUrl = "http://localhost:8080/?comp=list";
+        String createUrl = "http://localhost:8080/testapicontainer3?restype=container";
+        String listBlobsUrl = "http://localhost:8080/testapicontainer?restype=container&comp=list";
+        String createBlobUrl = "http://localhost:8080/testapicontainer/myblob";
 
         //URL url = new URL("http://riccardonci.blob.core.windows.net/riccardocontainer?restype=container");
 
@@ -71,14 +71,13 @@ public class Main {
 
 
         // LIST CONTAINER
-        HttpRequestBase listContainer = new HttpGet(listUrl);
-        listContainer.addHeader("x-ms-date", utcTime);
-        listContainer.addHeader("x-ms-version", "2015-04-05");
-        //SignRequest(listContainer, "riccardonci", secret);
+        //HttpRequestBase listContainer = new HttpGet(listUrl);
+        //listContainer.addHeader("x-ms-date", utcTime);
+        //listContainer.addHeader("x-ms-version", "2015-04-05");
 
-        resp = httpclient.execute(listContainer);
-        entity = resp.getEntity();
-        EntityUtils.consume(entity);
+        //resp = httpclient.execute(listContainer);
+        //entity = resp.getEntity();
+        //EntityUtils.consume(entity);
 
         // PUT CONTAINER
         HttpRequestBase createContainer = new HttpPut(createUrl);
@@ -86,53 +85,53 @@ public class Main {
         createContainer.addHeader("x-ms-version", "2015-04-05");
         //SignRequest(createContainer, "riccardonci", secret);
 
-        //resp = httpclient.execute(createContainer);
-        //entity = resp.getEntity();
-        // EntityUtils.consume(entity);
-
-        // LIST BLOBS CONTAINER
-        HttpRequestBase listBlobs = new HttpGet(listBlobsUrl);
-        listBlobs.addHeader("x-ms-date", utcTime);
-        listBlobs.addHeader("x-ms-version", "2015-04-05");
-        //SignRequest(listBlobs, "riccardonci", secret);
-
-        resp = httpclient.execute(listBlobs);
+        resp = httpclient.execute(createContainer);
         entity = resp.getEntity();
         EntityUtils.consume(entity);
 
+        // LIST BLOBS CONTAINER
+        //HttpRequestBase listBlobs = new HttpGet(listBlobsUrl);
+        //listBlobs.addHeader("x-ms-date", utcTime);
+        //listBlobs.addHeader("x-ms-version", "2015-04-05");
+        //SignRequest(listBlobs, "riccardonci", secret);
+
+        //resp = httpclient.execute(listBlobs);
+        //entity = resp.getEntity();
+        //EntityUtils.consume(entity);
+
         // PUT BLOB CONTAINER
-        HttpPut createBlob = new HttpPut(createBlobUrl);
-        createBlob.addHeader("x-ms-blob-type", "BlockBlob");
-        createBlob.addHeader("x-ms-date", utcTime);
-        createBlob.addHeader("x-ms-version", "2015-04-05");
+        //HttpPut createBlob = new HttpPut(createBlobUrl);
+        //createBlob.addHeader("x-ms-blob-type", "BlockBlob");
+        //createBlob.addHeader("x-ms-date", utcTime);
+        //createBlob.addHeader("x-ms-version", "2015-04-05");
 
 
-        createBlob.addHeader("x-ms-date", utcTime);
+        //createBlob.addHeader("x-ms-date", utcTime);
 
-        HttpEntity body =  new StringEntity("test blob", "UTF-8");
+        //HttpEntity body =  new StringEntity("test blob", "UTF-8");
         //createBlob.addHeader("Content-Length", Long.toString(body.getContentLength()));
 
-        createBlob.setEntity(body);
-        Header[] h = createBlob.getAllHeaders();
+        //createBlob.setEntity(body);
+        //Header[] h = createBlob.getAllHeaders();
         //createBlob.completed();
 
         //SignRequest(createBlob, "riccardonci", secret);
 
-        resp = httpclient.execute(createBlob);
-        entity = resp.getEntity();
-        EntityUtils.consume(entity);
+        //resp = httpclient.execute(createBlob);
+        //entity = resp.getEntity();
+        //EntityUtils.consume(entity);
 
 
-        HttpRequestBase httpost = new HttpDelete("http://riccardonci.blob.core.windows.net/test5?restype=container");
+        //HttpRequestBase httpost = new HttpDelete("http://riccardonci.blob.core.windows.net/test5?restype=container");
 
-        httpost.addHeader("x-ms-date", utcTime);
-        httpost.addHeader("x-ms-version", "2015-04-05");
+        //httpost.addHeader("x-ms-date", utcTime);
+        //httpost.addHeader("x-ms-version", "2015-04-05");
 
-        SignRequest(httpost, "riccardonci", secret);
+        //SignRequest(httpost, "riccardonci", secret);
 
-        resp = httpclient.execute(httpost);
+        //resp = httpclient.execute(httpost);
 
-        entity = resp.getEntity();
+        //entity = resp.getEntity();
 
 //        System.out.println("Request Handled?: " + resp.getStatusLine());
 //        InputStream in = entity.getContent();

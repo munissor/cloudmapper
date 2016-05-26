@@ -26,6 +26,7 @@ class ModelMapper {
         m.kind = h.kind
         m.value = h.value
         m.optional = h.optional
+        m.format = h.format
 
         res += m
 
@@ -93,7 +94,7 @@ class ModelMapper {
               }
             }
             else {
-              route.buildRequest.add(p.get)
+              route.buildRequest.add(arg)
             }
 
           })

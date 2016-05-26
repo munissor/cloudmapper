@@ -22,6 +22,7 @@ class NodeGenerator extends Generator {
     l.append(generateProxy(mapping))
 
     l.append(readResource("signature.js"))
+    l.append(readResource("formatUtils.js"))
 
     l.toList
   }
@@ -53,6 +54,8 @@ class NodeGenerator extends Generator {
 
     indentedWriter.printLn("\"restify\": \"*\",")
     indentedWriter.printLn("\"config\": \"*\",")
+    indentedWriter.printLn("\"moment\": \"*\",")
+    indentedWriter.printLn("\"request\": \"*\",")
     // TODO: make these dependency optional depending on whether they are needed or not
     indentedWriter.printLn("\"aws-signer-v4\": \"*\"")
     indentedWriter.decreaseIndent()
@@ -68,7 +71,7 @@ class NodeGenerator extends Generator {
 
   private def generateConfig(): CodeFile = {
     val pkg = new CodeFile()
-    pkg.name = "config/config.json"
+    pkg.name = "config/default.json"
 
     val stringWriter = new StringWriter()
     val indentedWriter = new IndentedPrintWriter(stringWriter)
@@ -131,22 +134,33 @@ class NodeGenerator extends Generator {
 
     // BUILD request
     indentedPrintWriter.printLn()
-    indentedPrintWriter.printLn("var client = restify.createStringsClient({")
+    indentedPrintWriter.printLn("var urlString = %s;", buildRequestUrl(route))
+
+    indentedPrintWriter.printLn()
+    indentedPrintWriter.printLn("var rHeaders = {};");
+    route.buildRequest.asScala.filter( p => p.location == "header")
+      .foreach( x => indentedPrintWriter.printLn("rHeaders['%s'] = %s;", x.name, formatValue(x) ))
+
+    var body = null
+    indentedPrintWriter.printLn()
+    indentedPrintWriter.printLn("var body = '';")
+    indentedPrintWriter.printLn()
+
+    indentedPrintWriter.printLn("var options = {method: '%s', url: urlString, body: body, headers: rHeaders};", route.remoteVerb )
+    indentedPrintWriter.printLn()
+
+    indentedPrintWriter.printLn("signature.buildSignature('%s', options);", mapping.signature)
+    indentedPrintWriter.printLn()
+    indentedPrintWriter.printLn("request(options, function(error, response, body){")
     indentedPrintWriter.increaseIndent()
-    indentedPrintWriter.printLn("url: %s,", buildRequestUrl(route))
-    indentedPrintWriter.printLn("signRequest: signature.buildSignature('%s')", mapping.signature )
+    indentedPrintWriter.printLn("console.log('x');")
     indentedPrintWriter.decreaseIndent()
     indentedPrintWriter.printLn("});")
-
-    indentedPrintWriter.printLn(String.format("client.%s(TODO, function(cerr, creq, cres, cobj){", getRestifyRoute(route.remoteVerb)))
-    indentedPrintWriter.increaseIndent()
-    indentedPrintWriter.decreaseIndent()
-    indentedPrintWriter.printLn("}")
     indentedPrintWriter.printLn()
 
     // END ROUTE
     indentedPrintWriter.decreaseIndent()
-    indentedPrintWriter.printLn("}")
+    indentedPrintWriter.printLn("});")
     indentedPrintWriter.printLn()
   }
 
@@ -160,10 +174,19 @@ class NodeGenerator extends Generator {
   private def buildRequestUrl(route: Route): String = {
     val replacements = route.buildRequest.asScala
       .filter( x => x.location == "url")
-      .map( x => String.format(".replace('{%s}', %s)", x.name, this.requestVariable(x)))
+      .map( x => String.format(".replace('{%s}', %s)", x.name, this.formatValue(x)))
       .mkString("")
 
-    String.format("'%s'%s", route.remoteUrl, replacements)
+    // TODO: don't hardcode protocol
+    String.format("'https://%s'%s", route.remoteUrl, replacements)
+  }
+
+  private def formatValue(parameter: MappingParameter): String = {
+    if(parameter.format != null && parameter.format.length() > 0 ){
+      return String.format("formatUtils.format%s(%s, '%s')", parameter.kind, this.requestVariable(parameter), parameter.format)
+    }
+
+    this.requestVariable(parameter)
   }
 
   private def formatExtractParameter(format: String, parameter: MappingParameter) = getNames(parameter).map( String.format(format, _)).mkString(" || ")
@@ -182,9 +205,11 @@ class NodeGenerator extends Generator {
     val stringWriter = new StringWriter()
     val indentedWriter = new IndentedPrintWriter(stringWriter)
 
+    indentedWriter.printLn("var request = require('request');")
     indentedWriter.printLn("var restify = require('restify');")
     indentedWriter.printLn("var config = require('config');")
     indentedWriter.printLn("var signature = require('./signature');")
+    indentedWriter.printLn("var formatUtils = require('./formatUtils');")
     indentedWriter.printLn("")
     indentedWriter.printLn("var server = restify.createServer();")
     indentedWriter.printLn("server.use(restify.queryParser());")
@@ -197,32 +222,11 @@ class NodeGenerator extends Generator {
     indentedWriter.increaseIndent()
     indentedWriter.printLn("console.log('%s listening at %s', server.name, server.url);")
     indentedWriter.decreaseIndent()
-    indentedWriter.printLn("}")
+    indentedWriter.printLn("});")
 
     pkg.code = stringWriter.toString
 
     return pkg
-
-    /*
-    var restify = require('restify');
-
-
-    function respond(req, res, next) {
-      res.send('hello ' + req.params.name);
-      next();
-    }
-
-    var server = restify.createServer();
-    server.get('/hello/:name', respond);
-    server.head('/hello/:name', respond);
-
-    server.listen(8080, function() {
-      console.log('%s listening at %s', server.name, server.url);
-    });
-
-      */
-
-
   }
 
 
