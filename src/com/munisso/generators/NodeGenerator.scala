@@ -13,6 +13,13 @@ import scala.collection.mutable.ListBuffer
   * Created by rmunisso on 02/05/2016.
   */
 class NodeGenerator extends Generator {
+
+  private val LOCATION_HEADER: String = "header"
+  private val LOCATION_URL: String = "url"
+  private val LOCATION_QUERY: String = "query"
+  private val LOCATION_BODY: String = "body"
+
+
   def generate(mapping: Mapping): List[CodeFile] = {
     val l = new ListBuffer[CodeFile]
 
@@ -23,6 +30,10 @@ class NodeGenerator extends Generator {
 
     l.append(readResource("signature.js"))
     l.append(readResource("formatUtils.js"))
+
+    l.append(readResource("xmlParser.js"))
+    l.append(readResource("jsonParser.js"))
+    l.append(readResource("parserFactory.js"))
 
     l.toList
   }
@@ -79,25 +90,28 @@ class NodeGenerator extends Generator {
 
     // extracts url parameters
     val parseRequest = route.parseRequest.asScala
-    parseRequest.filter( x => x.location == "url").foreach( x => {
+    parseRequest.filter( x => x.location == LOCATION_URL).foreach( x => {
       val varName = this.requestVariable(x)
 
       indentedPrintWriter.printLn("var %s = %s;", varName, formatExtractParameter("req.params.%s", x))
     })
 
-    parseRequest.filter( x => x.location == "query").foreach( x => {
+    parseRequest.filter( x => x.location == LOCATION_QUERY).foreach( x => {
       val varName = this.requestVariable(x)
       indentedPrintWriter.printLn("var %s = %s;", varName, formatExtractParameter("req.query.%s", x))
     })
 
-    parseRequest.filter( x => x.location == "header").foreach( x => {
+    parseRequest.filter( x => x.location == LOCATION_HEADER).foreach( x => {
       val varName = this.requestVariable(x)
       indentedPrintWriter.printLn("var %s = %s;", varName, formatExtractParameter("req.header('%s')", x))
     })
 
-    // TODO: body
+    parseRequest.filter( x => x.location == null).foreach( x => {
+      val varName = this.requestVariable(x)
+      indentedPrintWriter.printLn("var %s = '%s';", varName, x.value)
+    })
 
-    // TODO: type conversion?
+    // TODO: body
 
     // BUILD request
     indentedPrintWriter.printLn()
@@ -105,7 +119,7 @@ class NodeGenerator extends Generator {
 
     indentedPrintWriter.printLn()
     indentedPrintWriter.printLn("var rHeaders = {};");
-    route.buildRequest.asScala.filter( p => p.location == "header")
+    route.buildRequest.asScala.filter( p => p.location == LOCATION_HEADER)
       .foreach( x => indentedPrintWriter.printLn("rHeaders['%s'] = %s;", x.name, formatValue(x) ))
 
     var body = null
@@ -123,16 +137,30 @@ class NodeGenerator extends Generator {
 
     val parseResponse = route.parseResponse.asScala
 
-    parseResponse.filter( x => x.location == "header").foreach( x => {
+    parseResponse.filter( x => x.location == LOCATION_HEADER).foreach( x => {
       val varName = this.responseVariable(x)
       indentedPrintWriter.printLn("var %s = %s;", varName, formatExtractParameter("req.headers['%s']", x))
     })
 
+    /*
 
+    var resParser = parserFactory.getParser(response.headers['content-type'], body);
+
+		var resContainer = [];
+		var oContainer = resParser.getObjects('ListAllMyBucketsResult.Buckets.Bucket');
+		oContainer.forEach(function(containerItem){
+			var container = {};
+
+			container.Name = resParser.getValue("Name", containerItem);
+
+			resContainer.append(container);
+		});
+
+    */
 
     // Build response
     val buildResponse = route.buildResponse.asScala
-    buildResponse.filter( x => x.location == "header").foreach( x => {
+    buildResponse.filter( x => x.location == LOCATION_HEADER).foreach( x => {
       val varName = this.responseVariable(x)
       indentedPrintWriter.printLn("var %s = %s;", varName, formatExtractParameter("req.headers['%s']", x))
       indentedPrintWriter.printLn("res.header('%s', %s);", x.name, formatValue(x))
@@ -166,7 +194,7 @@ class NodeGenerator extends Generator {
 
   private def buildRequestUrl(route: Route): String = {
     val replacements = route.buildRequest.asScala
-      .filter( x => x.location == "url")
+      .filter( x => x.location == LOCATION_URL)
       .map( x => String.format(".replace('{%s}', %s)", x.name, this.formatValue(x)))
       .mkString("")
 
@@ -201,16 +229,17 @@ class NodeGenerator extends Generator {
     indentedWriter.printLn("var request = require('request');")
     indentedWriter.printLn("var restify = require('restify');")
     indentedWriter.printLn("var config = require('config');")
+
     indentedWriter.printLn("var signature = require('./signature');")
     indentedWriter.printLn("var formatUtils = require('./formatUtils');")
-    indentedWriter.printLn("")
+    indentedWriter.printLn()
     indentedWriter.printLn("var server = restify.createServer();")
     indentedWriter.printLn("server.use(restify.queryParser());")
-    indentedWriter.printLn("")
+    indentedWriter.printLn()
 
     mapping.routes.asScala.foreach(r => generateRoute(mapping, r, indentedWriter) )
 
-    indentedWriter.printLn("")
+    indentedWriter.printLn()
     indentedWriter.printLn("server.listen(config.port, function() {")
     indentedWriter.increaseIndent()
     indentedWriter.printLn("console.log('%s listening at %s', server.name, server.url);")

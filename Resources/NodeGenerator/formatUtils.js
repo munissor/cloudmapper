@@ -4,7 +4,7 @@ module.exports = {
     formatDate: formatDate
 };
 
-var DATE_ISO8601 = 'YYYYMMDDTHHmmss';
+var DATE_ISO8601 = 'YYYY-MM-DDTHH:mm:ss';
 
 function formatDate(value, format){
     var d;

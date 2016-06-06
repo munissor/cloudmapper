@@ -7,7 +7,7 @@
     {
       "name": "ListContainers",
       "request": {
-        "url": "s3.amazonaws.com",
+        "url": "s3.amazonaws.com/",
         "verb": "GET",
         "urlReplacements": [],
         "queryString": [],
@@ -22,6 +22,12 @@
             "logicalName": "Date",
             "kind": "Date",
             "format": "iso8601"
+          },
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String",
+            "value": "application/xml"
           }
         ],
         "body": null

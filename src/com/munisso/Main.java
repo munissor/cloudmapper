@@ -71,23 +71,23 @@ public class Main {
 
 
         // LIST CONTAINER
-        //HttpRequestBase listContainer = new HttpGet(listUrl);
-        //listContainer.addHeader("x-ms-date", utcTime);
-        //listContainer.addHeader("x-ms-version", "2015-04-05");
+        HttpRequestBase listContainer = new HttpGet(listUrl);
+        listContainer.addHeader("x-ms-date", utcTime);
+        listContainer.addHeader("x-ms-version", "2015-04-05");
 
-        //resp = httpclient.execute(listContainer);
-        //entity = resp.getEntity();
-        //EntityUtils.consume(entity);
-
-        // PUT CONTAINER
-        HttpRequestBase createContainer = new HttpPut(createUrl);
-        createContainer.addHeader("x-ms-date", utcTime);
-        createContainer.addHeader("x-ms-version", "2015-04-05");
-        //SignRequest(createContainer, "riccardonci", secret);
-
-        resp = httpclient.execute(createContainer);
+        resp = httpclient.execute(listContainer);
         entity = resp.getEntity();
         EntityUtils.consume(entity);
+
+        // PUT CONTAINER
+        //HttpRequestBase createContainer = new HttpPut(createUrl);
+        //createContainer.addHeader("x-ms-date", utcTime);
+        //createContainer.addHeader("x-ms-version", "2015-04-05");
+        //SignRequest(createContainer, "riccardonci", secret);
+
+        //resp = httpclient.execute(createContainer);
+        //entity = resp.getEntity();
+        //EntityUtils.consume(entity);
 
         // LIST BLOBS CONTAINER
         //HttpRequestBase listBlobs = new HttpGet(listBlobsUrl);

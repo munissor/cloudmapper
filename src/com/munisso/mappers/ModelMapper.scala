@@ -1,8 +1,8 @@
 package com.munisso.mappers
 
 import com.munisso.models._
-
 import scala.collection.mutable._
+import scala.collection.JavaConversions._
 
 
 
@@ -19,16 +19,8 @@ class ModelMapper {
 
       parameters.foreach( h => {
 
-        val m = new MappingParameter()
+        val m = MappingParameter.fromParameter(h)
         m.location = location
-        m.name = h.name
-        m.aliases = h.aliases
-        m.logicalName = h.logicalName
-        m.kind = h.kind
-        m.value = h.value
-        m.optional = h.optional
-        m.format = h.format
-        m.multiple = h.multiple
 
         res += m
 
@@ -54,16 +46,9 @@ class ModelMapper {
 
     if( parameter.logicalName != null ) {
 
-      val m = new MappingParameter()
+      val m = MappingParameter.fromParameter(parameter);
       m.location = "body"
       m.name = fullName
-      m.aliases = parameter.aliases
-      m.logicalName = parameter.logicalName
-      m.kind = parameter.kind
-      m.value = parameter.value
-      m.optional = parameter.optional
-      m.format = parameter.format
-      m.multiple = parameter.multiple
 
       extracted.append(m)
     }
@@ -91,125 +76,140 @@ class ModelMapper {
     source.operations.foreach(srcOperation => {
 
       val route = new Route(srcOperation.name, srcOperation.request.url, srcOperation.request.verb)
-        mapping.routes.add(  route )
+      mapping.routes.add(route)
 
-        // Find the matching operation in the destination model
-        val dop = destination.operations.find( _.name == srcOperation.name )
-        if (dop.isEmpty) {
-          route.routeError = new MappingError("Operation missing from destination provider")
-        }
-        else {
-          val destOperation = dop.get
+      // Find the matching operation in the destination model
+      val dop = destination.operations.find(_.name == srcOperation.name)
+      if (dop.isEmpty) {
+        route.routeError = new MappingError("Operation missing from destination provider")
+      }
+      else {
+        val destOperation = dop.get
 
-          route.remoteUrl = destOperation.request.url
-          route.remoteVerb = destOperation.request.verb
+        route.remoteUrl = destOperation.request.url
+        route.remoteVerb = destOperation.request.verb
 
-          val sourceReqArgs =
-            extractArguments("url", srcOperation.request.urlReplacements) ++
+        val sourceReqArgs =
+          extractArguments("url", srcOperation.request.urlReplacements) ++
             extractArguments("header", srcOperation.request.headers) ++
             extractArguments("query", srcOperation.request.queryString) ++
             extractBodyArguments(srcOperation.request.body)
 
-          val sourceReqMap = sourceReqArgs.map( x => x.logicalName -> x ).toMap
+        val sourceReqMap = sourceReqArgs.map(x => x.logicalName -> x).toMap
 
-          val destReqArgs =
-            extractArguments("url", destOperation.request.urlReplacements) ++
+        val destReqArgs =
+          extractArguments("url", destOperation.request.urlReplacements) ++
             extractArguments("header", destOperation.request.headers) ++
             extractArguments("query", destOperation.request.queryString) ++
             extractBodyArguments(destOperation.request.body)
 
-          destReqArgs.foreach( arg => {
-            val p = sourceReqMap.get(arg.logicalName)
+        destReqArgs.foreach(arg => {
+          val p = sourceReqMap.get(arg.logicalName)
 
-            // PARSE SOURCE REQUEST
-            if( !p.isEmpty  ){
-              route.parseRequest.add(p.get)
-            }
+          // PARSE SOURCE REQUEST
+          if (p.isDefined) {
+            route.parseRequest.add(p.get)
+          }
 
-            // BUILD DESTINATION REQUEST
-            if( p.isEmpty ){
+          // BUILD DESTINATION REQUEST
+          if (p.isEmpty) {
 
-              if(arg.value != null ){
-                route.buildRequest.add( arg )
-              }
-              else if (!arg.optional) {
-                route.requestErrors.add(new MappingError(String.format("Missing mandatory parameter %s from request", arg.logicalName)))
-              }
-            }
-            else {
+            if (arg.value != null) {
+              val dup = MappingParameter.duplicate(arg)
+              dup.location = null
+              route.parseRequest.add(dup)
+
               route.buildRequest.add(arg)
             }
-          })
+            else if (!arg.optional) {
+              route.requestErrors.add(new MappingError(String.format("Missing mandatory parameter %s from request", arg.logicalName)))
+            }
+          }
+          else {
+            route.buildRequest.add(arg)
+          }
+        })
 
-          // REQUEST IS SENT HERE!!
+        // REQUEST IS SENT HERE!!
+
+        // PARSE DESTINATION RESPONSE
+
+        val destResArgs = extractArguments("header", destOperation.response.headers) ++
+          extractBodyArguments(destOperation.response.body)
+
+        val destResMap = destResArgs.map(x => x.logicalName -> x).toMap
+
+        val srcResArgs = extractArguments("header", srcOperation.response.headers) ++
+          extractBodyArguments(srcOperation.response.body)
+
+        srcResArgs.foreach(arg => {
+          val p = destResMap.get(arg.logicalName)
 
           // PARSE DESTINATION RESPONSE
+          if (p.isDefined) {
+            route.parseResponse.add(p.get)
+          }
 
-          val destResArgs = extractArguments("header", destOperation.response.headers) ++
-            extractBodyArguments(destOperation.response.body)
+          // BUILD DESTINATION RESPONSE
+          if (p.isEmpty) {
 
-          val destResMap =  destResArgs.map( x => x.logicalName -> x ).toMap
-
-          val srcResArgs = extractArguments("header", srcOperation.response.headers) ++
-            extractBodyArguments(srcOperation.response.body)
-
-          srcResArgs.foreach( arg => {
-            val p = destResMap.get(arg.logicalName)
-
-            // PARSE DESTINATION RESPONSE
-            if( !p.isEmpty  ){
-              route.parseResponse.add(p.get)
+            if (arg.value != null) {
+              route.buildResponse.add(arg)
             }
-
-            // BUILD DESTINATION REQUEST
-            if( p.isEmpty ) {
-
-              if(arg.value != null ){
-                route.buildResponse.add( arg )
-              }
-              else if (!arg.optional) {
-                route.responseErrors.add(new MappingError(String.format("Missing mandatory parameter %s from response", arg.logicalName)))
-              }
+            else if (!arg.optional) {
+              route.responseErrors.add(new MappingError(String.format("Missing mandatory parameter %s from response", arg.logicalName)))
             }
-            else {
-              route.buildResponse.add( arg)
-            }
+          }
+          else {
+            route.buildResponse.add(arg)
+          }
 
-          })
-        }
+        })
+      }
 
+      route.parseRequest = aggregateParameters(route.parseRequest.toList)
+      route.buildRequest = aggregateParameters(route.buildRequest.toList)
+      route.parseResponse = aggregateParameters(route.parseResponse.toList)
+      route.buildResponse = aggregateParameters(route.buildResponse.toList)
     })
 
     return mapping
   }
 
-  /*
-*
+  def aggregateParameters(parameters: List[MappingParameter]) : ListBuffer[MappingParameter] = {
+    val sorted = parameters.sortBy( x => x.logicalName )
+    val res = new ListBuffer[MappingParameter]
 
-Mapper foreach operation generate a route
+    sorted.foreach( p => {
+      // if it's a nested argument
+      val idx = p.logicalName.lastIndexOf('.')
+      if(idx >= 0 ) {
+        val prefix = p.logicalName.substring(0, idx)
+        // safe to use res, if they are sorted parent should be already added
+        val parent = res.find( x => x.logicalName.compare(prefix) == 0 )
+        if( parent.isDefined ) {
+          val par = parent.get
+          par.properties =
+            if (par.properties == null)
+              Array(p)
+            else
+              par.properties ++ Array(p)
 
-    Handle request
+          if(p.name.startsWith(par.name)){
+            p.name = p.name.substring(par.name.length)
+          }
+        }
+        else {
+          res.append(p)
+        }
+      }
+      else {
+        res.append(p)
+      }
 
-        The request has parameters that can be anywhere (url, headers, body)
-        Extract parameters from request using source model
-        Convert each parameter to the format required by the destination model
-        if mandatory parameter of the destination model is missing, output Error
+    })
 
-        Foreach parameter, format request using destination model
+    return res
+  }
 
-        TODO: how do we describe the "body" or complex types in general (e.g: header containing JSON)?
-
-        Sent the request to the destination provider
-
-        THe response has parameters that can be in the header or body
-
-        Extract parameters from response using destination model
-
-        Convert each paramter to the format required by the source model
-
-        If mandatory parameters are missing, output Error
-
- If operations are missing from destination provider, output an Error
-
-*/
 }
