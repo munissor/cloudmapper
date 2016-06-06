@@ -16,7 +16,7 @@ class NodeGenerator extends Generator {
   def generate(mapping: Mapping): List[CodeFile] = {
     val l = new ListBuffer[CodeFile]
 
-    l.append(generatePackage())
+    l.append(readResource("package.json"))
     l.append(generateConfig())
 
     l.append(generateProxy(mapping))
@@ -35,39 +35,6 @@ class NodeGenerator extends Generator {
     return pkg
   }
 
-  private def generatePackage(): CodeFile = {
-    val pkg = new CodeFile()
-    pkg.name = "package.json"
-
-    val stringWriter = new StringWriter()
-    val indentedWriter = new IndentedPrintWriter(stringWriter)
-
-    indentedWriter.printLn("{")
-    indentedWriter.increaseIndent()
-
-    indentedWriter.printLn("\"name\": \"proxy\",")
-    indentedWriter.printLn("\"version\": \"1.0.0\",")
-    indentedWriter.printLn("\"main\": \"index.js\",")
-    indentedWriter.printLn("\"dependencies\": {")
-
-    indentedWriter.increaseIndent()
-
-    indentedWriter.printLn("\"restify\": \"*\",")
-    indentedWriter.printLn("\"config\": \"*\",")
-    indentedWriter.printLn("\"moment\": \"*\",")
-    indentedWriter.printLn("\"request\": \"*\",")
-    // TODO: make these dependency optional depending on whether they are needed or not
-    indentedWriter.printLn("\"aws-signer-v4\": \"*\"")
-    indentedWriter.decreaseIndent()
-    indentedWriter.printLn("}")
-
-    indentedWriter.decreaseIndent()
-    indentedWriter.printLn("}")
-
-    pkg.code = stringWriter.toString
-
-    return pkg
-  }
 
   private def generateConfig(): CodeFile = {
     val pkg = new CodeFile()
@@ -130,7 +97,7 @@ class NodeGenerator extends Generator {
 
     // TODO: body
 
-    // TODO: type conversion
+    // TODO: type conversion?
 
     // BUILD request
     indentedPrintWriter.printLn()
@@ -153,7 +120,33 @@ class NodeGenerator extends Generator {
     indentedPrintWriter.printLn()
     indentedPrintWriter.printLn("request(options, function(error, response, body){")
     indentedPrintWriter.increaseIndent()
-    indentedPrintWriter.printLn("console.log('x');")
+
+    val parseResponse = route.parseResponse.asScala
+
+    parseResponse.filter( x => x.location == "header").foreach( x => {
+      val varName = this.responseVariable(x)
+      indentedPrintWriter.printLn("var %s = %s;", varName, formatExtractParameter("req.headers['%s']", x))
+    })
+
+
+
+    // Build response
+    val buildResponse = route.buildResponse.asScala
+    buildResponse.filter( x => x.location == "header").foreach( x => {
+      val varName = this.responseVariable(x)
+      indentedPrintWriter.printLn("var %s = %s;", varName, formatExtractParameter("req.headers['%s']", x))
+      indentedPrintWriter.printLn("res.header('%s', %s);", x.name, formatValue(x))
+    })
+
+    // TODO: map status ?
+    indentedPrintWriter.printLn("var status = response.statusCode;")
+
+    // TODO: parse response body
+    indentedPrintWriter.printLn("var rBody = '';")
+
+    indentedPrintWriter.printLn("res.send(status, rBody);")
+    indentedPrintWriter.printLn("return next();")
+
     indentedPrintWriter.decreaseIndent()
     indentedPrintWriter.printLn("});")
     indentedPrintWriter.printLn()

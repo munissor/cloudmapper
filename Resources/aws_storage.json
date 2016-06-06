@@ -5,6 +5,77 @@
   "signature": "aws-v4",
   "operations": [
     {
+      "name": "ListContainers",
+      "request": {
+        "url": "s3.amazonaws.com",
+        "verb": "GET",
+        "urlReplacements": [],
+        "queryString": [],
+        "headers":[
+          {
+            "name": "Authorization",
+            "logicalName": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date",
+            "format": "iso8601"
+          }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "name": "ListAllMyBucketsResult",
+          "kind": "Object",
+          "properties": [
+            {
+              "name": "Owner",
+              "kind": "Object",
+              "properties": [
+                {
+                  "name": "ID",
+                  "logicalName": "OwnerId",
+                  "kind": "String"
+                },
+                {
+                  "name": "DisplayName",
+                  "logicalName": "OwnerName",
+                  "kind": "String"
+                }
+              ]
+            },
+            {
+              "name": "Buckets",
+              "kind": "Object",
+              "properties": [
+                {
+                  "name": "Bucket",
+                  "logicalName": "Container",
+                  "kind": "Object",
+                  "multiple": true,
+                  "properties": [
+                    {
+                      "name": "Name",
+                      "logicalName": "Container.Name",
+                      "kind": "String"
+                    },
+                    {
+                      "name": "CreationDate",
+                      "logicalName": "Container.CreationDate",
+                      "kind": "Date"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
       "name": "PutContainer",
       "request": {
         "verb": "PUT",
@@ -61,7 +132,7 @@
           {
             "name": "restype",
             "logicalName": "ObjectType",
-            "kind": "Constant",
+            "kind": "String",
             "value": "container"
           },
           {
@@ -103,7 +174,7 @@
           {
             "name": "restype",
             "logicalName": "ObjectType",
-            "kind": "Constant",
+            "kind": "String",
             "value": "container"
           },
           {

@@ -10,6 +10,5 @@ public enum Types {
     Boolean,
     Object,
     Signature,
-    Binary,
-    Constant
+    Binary
 }

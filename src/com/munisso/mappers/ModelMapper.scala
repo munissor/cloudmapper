@@ -11,6 +11,7 @@ import scala.collection.mutable._
   */
 class ModelMapper {
 
+
   private def extractArguments(location: String, parameters: Array[Parameter]): ListBuffer[MappingParameter] = {
     val res = new ListBuffer[MappingParameter]
 
@@ -27,6 +28,7 @@ class ModelMapper {
         m.value = h.value
         m.optional = h.optional
         m.format = h.format
+        m.multiple = h.multiple
 
         res += m
 
@@ -34,6 +36,49 @@ class ModelMapper {
     }
 
     return res
+  }
+
+  private def extractBodyArguments(body: Parameter): ListBuffer[MappingParameter] = {
+    val res = new ListBuffer[MappingParameter]
+
+    if( body != null ) {
+      extractBodyArguments("", body, res)
+    }
+
+    return res
+  }
+
+  private def extractBodyArguments(prefix: String, parameter: Parameter, extracted: ListBuffer[MappingParameter]): Unit = {
+
+    val fullName = appendPrefix(prefix, parameter.name)
+
+    if( parameter.logicalName != null ) {
+
+      val m = new MappingParameter()
+      m.location = "body"
+      m.name = fullName
+      m.aliases = parameter.aliases
+      m.logicalName = parameter.logicalName
+      m.kind = parameter.kind
+      m.value = parameter.value
+      m.optional = parameter.optional
+      m.format = parameter.format
+      m.multiple = parameter.multiple
+
+      extracted.append(m)
+    }
+
+    if(parameter.kind == Types.Object && parameter.properties != null ) {
+      parameter.properties.foreach( x => extractBodyArguments(fullName, x, extracted))
+    }
+  }
+
+  private def appendPrefix(prefix: String, toAppend: String): String = {
+
+    if( prefix.length() > 0){
+      return prefix + "." + toAppend
+    }
+    return toAppend
   }
 
 
@@ -62,15 +107,16 @@ class ModelMapper {
           val sourceReqArgs =
             extractArguments("url", srcOperation.request.urlReplacements) ++
             extractArguments("header", srcOperation.request.headers) ++
-            extractArguments("query", srcOperation.request.queryString)
+            extractArguments("query", srcOperation.request.queryString) ++
+            extractBodyArguments(srcOperation.request.body)
 
           val sourceReqMap = sourceReqArgs.map( x => x.logicalName -> x ).toMap
 
           val destReqArgs =
             extractArguments("url", destOperation.request.urlReplacements) ++
             extractArguments("header", destOperation.request.headers) ++
-            extractArguments("query", destOperation.request.queryString)
-          // TODO: how do we extract body
+            extractArguments("query", destOperation.request.queryString) ++
+            extractBodyArguments(destOperation.request.body)
 
           destReqArgs.foreach( arg => {
             val p = sourceReqMap.get(arg.logicalName)
@@ -78,13 +124,10 @@ class ModelMapper {
             // PARSE SOURCE REQUEST
             if( !p.isEmpty  ){
               route.parseRequest.add(p.get)
-
             }
 
             // BUILD DESTINATION REQUEST
-            // TODO: build body
             if( p.isEmpty ){
-              // TODO: convert types
 
               if(arg.value != null ){
                 route.buildRequest.add( arg )
@@ -96,18 +139,19 @@ class ModelMapper {
             else {
               route.buildRequest.add(arg)
             }
-
           })
 
           // REQUEST IS SENT HERE!!
 
           // PARSE DESTINATION RESPONSE
 
-          val destResArgs = extractArguments("header", destOperation.response.headers)
-          val destResMap =  destReqArgs.map( x => x.logicalName -> x ).toMap
+          val destResArgs = extractArguments("header", destOperation.response.headers) ++
+            extractBodyArguments(destOperation.response.body)
 
-          val srcResArgs = extractArguments("header", srcOperation.response.headers);
-          // TODO: body
+          val destResMap =  destResArgs.map( x => x.logicalName -> x ).toMap
+
+          val srcResArgs = extractArguments("header", srcOperation.response.headers) ++
+            extractBodyArguments(srcOperation.response.body)
 
           srcResArgs.foreach( arg => {
             val p = destResMap.get(arg.logicalName)
@@ -118,29 +162,25 @@ class ModelMapper {
             }
 
             // BUILD DESTINATION REQUEST
-            // TODO: build body
-            if( p.isEmpty ){
-              // TODO: convert types
+            if( p.isEmpty ) {
 
               if(arg.value != null ){
                 route.buildResponse.add( arg )
               }
               else if (!arg.optional) {
-                route.requestErrors.add(new MappingError(String.format("Missing mandatory parameter %s from response", arg.logicalName)))
+                route.responseErrors.add(new MappingError(String.format("Missing mandatory parameter %s from response", arg.logicalName)))
               }
             }
             else {
-              route.buildResponse.add(p.get)
+              route.buildResponse.add( arg)
             }
 
           })
-
-
         }
 
     })
 
-    return mapping;
+    return mapping
   }
 
   /*
