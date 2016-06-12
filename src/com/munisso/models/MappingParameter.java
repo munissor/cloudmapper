@@ -28,5 +28,5 @@ public class MappingParameter extends Parameter {
         return m;
     }
 
-
+    public MappingParameter[] properties;
 }

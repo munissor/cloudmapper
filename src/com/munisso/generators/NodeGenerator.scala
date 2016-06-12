@@ -3,7 +3,7 @@ package com.munisso.generators
 import java.io.StringWriter
 import java.net.URI
 
-import com.munisso.models.{Mapping, MappingError, MappingParameter, Route}
+import com.munisso.models._
 import com.munisso.util.IndentedPrintWriter
 
 import scala.collection.JavaConverters._
@@ -89,7 +89,10 @@ class NodeGenerator extends Generator {
     writeMappingError(route.routeError, indentedPrintWriter)
 
     // extracts url parameters
-    val parseRequest = route.parseRequest.asScala
+    val reader = new NodeGeneratorRestifyPropertyReader(indentedPrintWriter)
+    reader.extractProperties(route.parseRequest.asScala)
+
+    /*val parseRequest = route.parseRequest.asScala
     parseRequest.filter( x => x.location == LOCATION_URL).foreach( x => {
       val varName = this.requestVariable(x)
 
@@ -109,13 +112,15 @@ class NodeGenerator extends Generator {
     parseRequest.filter( x => x.location == null).foreach( x => {
       val varName = this.requestVariable(x)
       indentedPrintWriter.printLn("var %s = '%s';", varName, x.value)
-    })
+    })*/
 
-    // TODO: body
 
     // BUILD request
     indentedPrintWriter.printLn()
     indentedPrintWriter.printLn("var urlString = %s;", buildRequestUrl(route))
+
+    var reqWriter = new NodeGeneratorRequestPropertyWriter(indentedPrintWriter)
+    reqWriter.writeProperties(route.buildRequest.asScala)
 
     indentedPrintWriter.printLn()
     indentedPrintWriter.printLn("var rHeaders = {};");
@@ -135,36 +140,23 @@ class NodeGenerator extends Generator {
     indentedPrintWriter.printLn("request(options, function(error, response, body){")
     indentedPrintWriter.increaseIndent()
 
-    val parseResponse = route.parseResponse.asScala
 
-    parseResponse.filter( x => x.location == LOCATION_HEADER).foreach( x => {
-      val varName = this.responseVariable(x)
-      indentedPrintWriter.printLn("var %s = %s;", varName, formatExtractParameter("req.headers['%s']", x))
-    })
+    //val parseResponse = route.parseResponse.asScala
+    var resReaser = new NodeGeneratorRequestPropertyReader(indentedPrintWriter)
+    resReaser.extractProperties(route.parseResponse.asScala)
 
-    /*
-
-    var resParser = parserFactory.getParser(response.headers['content-type'], body);
-
-		var resContainer = [];
-		var oContainer = resParser.getObjects('ListAllMyBucketsResult.Buckets.Bucket');
-		oContainer.forEach(function(containerItem){
-			var container = {};
-
-			container.Name = resParser.getValue("Name", containerItem);
-
-			resContainer.append(container);
-		});
-
-    */
+    indentedPrintWriter.printLn()
 
     // Build response
-    val buildResponse = route.buildResponse.asScala
+    var resWriter = new NodeGeneratorRestifyPropertyWriter(indentedPrintWriter)
+    resWriter.writeProperties(route.buildResponse.asScala)
+
+    /*val buildResponse = route.buildResponse.asScala
     buildResponse.filter( x => x.location == LOCATION_HEADER).foreach( x => {
       val varName = this.responseVariable(x)
       indentedPrintWriter.printLn("var %s = %s;", varName, formatExtractParameter("req.headers['%s']", x))
       indentedPrintWriter.printLn("res.header('%s', %s);", x.name, formatValue(x))
-    })
+    })*/
 
     // TODO: map status ?
     indentedPrintWriter.printLn("var status = response.statusCode;")
@@ -219,6 +211,24 @@ class NodeGenerator extends Generator {
     }
   }
 
+  private def require(writer: IndentedPrintWriter, module: String, local: Boolean = false, variable: String = null) = {
+    val m =
+      if(local){
+        "./" + module
+      }
+      else {
+        module
+      }
+
+    val v =
+      if(variable != null )
+        variable
+      else
+        module
+
+    writer.printLn("var %s = require('%s');", v, m)
+  }
+
   private def generateProxy(mapping: Mapping): CodeFile = {
     val pkg = new CodeFile()
     pkg.name = "index.js"
@@ -226,12 +236,14 @@ class NodeGenerator extends Generator {
     val stringWriter = new StringWriter()
     val indentedWriter = new IndentedPrintWriter(stringWriter)
 
-    indentedWriter.printLn("var request = require('request');")
-    indentedWriter.printLn("var restify = require('restify');")
-    indentedWriter.printLn("var config = require('config');")
+    require(indentedWriter, "request")
+    require(indentedWriter, "restify")
+    require(indentedWriter, "config")
 
-    indentedWriter.printLn("var signature = require('./signature');")
-    indentedWriter.printLn("var formatUtils = require('./formatUtils');")
+    require(indentedWriter, "parserFactory", true)
+    require(indentedWriter, "signature", true)
+    require(indentedWriter, "formatUtils", true)
+
     indentedWriter.printLn()
     indentedWriter.printLn("var server = restify.createServer();")
     indentedWriter.printLn("server.use(restify.queryParser());")

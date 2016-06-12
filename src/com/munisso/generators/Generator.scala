@@ -17,6 +17,12 @@ trait Generator {
 
   def responseVariable(parameter: MappingParameter): String = formatVariable(parameter, "resp")
 
+  def requestObjectVariable(parameter: MappingParameter): String = formatVariable(parameter, "reqObj")
+
+  def responseObjectVariable(parameter: MappingParameter): String = formatVariable(parameter, "resObj")
+
+  def temporaryVariable(parameter: MappingParameter): String = formatVariable(parameter, "").toLowerCase()
+
   private def formatVariable(parameter: MappingParameter, prefix: String): String = prefix + escapeVariable(parameter)
 
   // make sure the logicalName contains characters allowed from many languages
