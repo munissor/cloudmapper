@@ -6,13 +6,21 @@ import com.munisso.util.IndentedPrintWriter
 /**
   * Created by rmunisso on 07/06/2016.
   */
-abstract class NodeGeneratorPropertyReader(writer: IndentedPrintWriter, propertyNames: PropertyNames) {
+abstract class NodeGeneratorPropertyReader(writer: IndentedPrintWriter, protected val propertyNames: PropertyNames) {
 
   def extractProperties(parameters: Iterable[MappingParameter]): Unit = {
-    writer.printLn("var %s = parserFactory.getParser(response.headers['content-type'], body);", propertyNames.requestParser)
+    writer.printLn("var %s = {};", propertyNames.variable() )
+
+    val needsBodyParser = parameters.find(x => x.location == Locations.LOCATION_BODY).isDefined
+    if(needsBodyParser){
+      writer.printLn(createParser())
+    }
+
     writer.printLn()
     extractProperties(parameters, null, null, null)
   }
+
+  protected def createParser(): String
 
   private def extractProperties(parameters: Iterable[MappingParameter], parentParameter: MappingParameter, parentIterationVariable: String, parentVariable: String): Unit = {
     parameters.foreach( x => {
@@ -30,10 +38,9 @@ abstract class NodeGeneratorPropertyReader(writer: IndentedPrintWriter, property
   }
 
   private def extractMultipleProperties(parameter: MappingParameter, parentParameter: MappingParameter, parentIterationVariable: String, parentVariable: String): Unit = {
-    val declaration = if (parentVariable != null) "" else "var "
-    val variableName = if(parentVariable != null ) parentVariable + "." + propertyNames.nestedVariable(parameter, parentParameter) else propertyNames.variable(parameter)
+    val variableName = if(parentVariable != null ) parentVariable + "." + propertyNames.nestedVariable(parameter, parentParameter) else propertyNames.property(parameter)
 
-    writer.printLn("%s%s = [];", declaration, variableName)
+    writer.printLn("%s = [];", variableName)
 
     if( parameter.kind == Types.Object){
       extractMultipleObjectProperties(parameter, parentParameter, parentIterationVariable, parentVariable, variableName)
@@ -45,19 +52,18 @@ abstract class NodeGeneratorPropertyReader(writer: IndentedPrintWriter, property
 
   private def extractScalarProperty(parameter: MappingParameter, parentParameter: MappingParameter, parentIterationVariable: String, parentVariable: String = null) = {
 
-    val declaration = if (parentVariable != null) "" else "var "
-    val variableName = if(parentVariable != null ) parentVariable + "." + propertyNames.nestedVariable(parameter, parentParameter) else propertyNames.variable(parameter)
+    val variableName = if(parentVariable != null ) parentVariable + "." + propertyNames.nestedVariable(parameter, parentParameter) else propertyNames.property(parameter)
     val parent = if(parentIterationVariable != null) ", " + parentIterationVariable else ""
 
     val read = parameter.location match {
       case Locations.LOCATION_URL => formatExtractParameter(propertyNames.requestVariable + ".params.%s", parameter)
       case Locations.LOCATION_QUERY => formatExtractParameter(propertyNames.requestVariable + ".query.%s", parameter)
       case Locations.LOCATION_HEADER => formatExtractParameter(propertyNames.requestVariable + ".header('%s')", parameter)
-      case Locations.LOCATION_BODY => formatExtractParameter(propertyNames.requestParser + ".getValue('%s'" + parent + ")", parameter)
+      case Locations.LOCATION_BODY => formatExtractParameter(propertyNames.requestParser + ".getValue('%s'" + parent + ")", parameter, n => if(n.startsWith(".")) n.substring(1) else n)
       case _ => String.format("'%s'", parameter.value)
     }
 
-    writer.printLn("%s%s = %s;", declaration, variableName, read)
+    writer.printLn("%s = %s;", variableName, read)
   }
 
   private def extractObjectProperty(parameter: MappingParameter, parentParameter: MappingParameter, parentIterationVariable: String, parentVariable: String): Unit = {
@@ -90,7 +96,7 @@ abstract class NodeGeneratorPropertyReader(writer: IndentedPrintWriter, property
     writer.printLn("%s.push(%s);", arrayVariable, tVariable)
 
     writer.decreaseIndent()
-    writer.printLn("}")
+    writer.printLn("});")
   }
 
   private def extractMultipleScalarProperties(parameter: MappingParameter, parentParameter: MappingParameter, parentIterationVariable: String, parentVariable: String, arrayVariable: String): Unit = {
@@ -118,13 +124,18 @@ abstract class NodeGeneratorPropertyReader(writer: IndentedPrintWriter, property
 
   private def getNames(parameter: MappingParameter): List[String] = parameter.name :: (if (parameter.aliases != null) parameter.aliases.toList else Nil)
 
-  private def formatExtractParameter(format: String, parameter: MappingParameter) = getNames(parameter).map( String.format(format, _)).mkString(" || ")
+  private def formatExtractParameter(format: String, parameter: MappingParameter, nameTransform: (String) => String = (x) => x): String =
+    getNames(parameter).map( n => String.format(format, nameTransform(n))).mkString(" || ")
 }
 
 class NodeGeneratorRestifyPropertyReader(writer: IndentedPrintWriter)
-    extends NodeGeneratorPropertyReader(writer, new RequestPropertyNames) {
+  extends NodeGeneratorPropertyReader(writer, new PropertyNames("srcReq")) {
+
+  override protected def createParser(): String = String.format("var %s = parserFactory.getParser(req.headers['content-type'], body);", propertyNames.requestParser)
 }
 
 class NodeGeneratorRequestPropertyReader(writer: IndentedPrintWriter)
-  extends NodeGeneratorPropertyReader(writer, new ResponsePropertyNames) {
+  extends NodeGeneratorPropertyReader(writer, new PropertyNames("dstRes")) {
+
+  override protected def createParser(): String = String.format("var %s = parserFactory.getParser(response.headers['content-type'], body);", propertyNames.requestParser)
 }

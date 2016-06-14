@@ -35,6 +35,10 @@ class NodeGenerator extends Generator {
     l.append(readResource("jsonParser.js"))
     l.append(readResource("parserFactory.js"))
 
+    l.append(readResource("xmlWriter.js"))
+    l.append(readResource("jsonWriter.js"))
+    l.append(readResource("writerFactory.js"))
+
     l.toList
   }
 
@@ -117,15 +121,18 @@ class NodeGenerator extends Generator {
 
     // BUILD request
     indentedPrintWriter.printLn()
-    indentedPrintWriter.printLn("var urlString = %s;", buildRequestUrl(route))
+    // TODO: don't hardcode protocol
+    indentedPrintWriter.printLn("var urlString = 'https://%s';", route.remoteUrl)
+    indentedPrintWriter.printLn("var rHeaders = {};");
 
     var reqWriter = new NodeGeneratorRequestPropertyWriter(indentedPrintWriter)
     reqWriter.writeProperties(route.buildRequest.asScala)
 
+/*
     indentedPrintWriter.printLn()
-    indentedPrintWriter.printLn("var rHeaders = {};");
     route.buildRequest.asScala.filter( p => p.location == LOCATION_HEADER)
       .foreach( x => indentedPrintWriter.printLn("rHeaders['%s'] = %s;", x.name, formatValue(x) ))
+*/
 
     var body = null
     indentedPrintWriter.printLn()
@@ -142,8 +149,8 @@ class NodeGenerator extends Generator {
 
 
     //val parseResponse = route.parseResponse.asScala
-    var resReaser = new NodeGeneratorRequestPropertyReader(indentedPrintWriter)
-    resReaser.extractProperties(route.parseResponse.asScala)
+    var resReader = new NodeGeneratorRequestPropertyReader(indentedPrintWriter)
+    resReader.extractProperties(route.parseResponse.asScala)
 
     indentedPrintWriter.printLn()
 
@@ -162,7 +169,7 @@ class NodeGenerator extends Generator {
     indentedPrintWriter.printLn("var status = response.statusCode;")
 
     // TODO: parse response body
-    indentedPrintWriter.printLn("var rBody = '';")
+    indentedPrintWriter.printLn("var rBody = dstResWriter.toString();")
 
     indentedPrintWriter.printLn("res.send(status, rBody);")
     indentedPrintWriter.printLn("return next();")
@@ -241,6 +248,7 @@ class NodeGenerator extends Generator {
     require(indentedWriter, "config")
 
     require(indentedWriter, "parserFactory", true)
+    require(indentedWriter, "writerFactory", true)
     require(indentedWriter, "signature", true)
     require(indentedWriter, "formatUtils", true)
 

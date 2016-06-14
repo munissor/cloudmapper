@@ -5,9 +5,11 @@ import com.munisso.models.MappingParameter
 /**
   * Created by rmunisso on 07/06/2016.
   */
-abstract class PropertyNames(prefix: String) {
+class PropertyNames(prefix: String) {
 
-  def variable(parameter: MappingParameter): String = formatVariable(parameter.logicalName, prefix)
+  def variable(): String = prefix + "Data"
+
+  def property(parameter: MappingParameter): String = variable + "." + formatVariable(parameter.logicalName, "")
 
   def nestedVariable(parameter: MappingParameter, parentParameter: MappingParameter): String = {
     formatVariable(nestedLogicalName(parameter, parentParameter), "")
@@ -19,9 +21,15 @@ abstract class PropertyNames(prefix: String) {
 
   def iterationVariable(parameter: MappingParameter): String = formatVariable(parameter.logicalName, prefix + "Itr")
 
-  def requestVariable(): String = prefix
+  def requestVariable(): String = "req"
 
   def requestParser(): String = prefix + "Parser"
+
+  def requestWriter(): String = prefix + "Writer"
+
+  def requestHeaders(): String = "rHeaders"
+
+  def requestUrl(): String = "urlString"
 
   private def nestedLogicalName(parameter: MappingParameter, parentParameter: MappingParameter): String = {
     parameter.logicalName.replace(parentParameter.logicalName, "").substring(1)
@@ -33,8 +41,5 @@ abstract class PropertyNames(prefix: String) {
   private def escapeVariable(parameter: String): String = parameter
 }
 
-class RequestPropertyNames extends PropertyNames("req")
-
-class ResponsePropertyNames extends PropertyNames("res")
 
 

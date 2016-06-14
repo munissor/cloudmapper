@@ -198,6 +198,10 @@ class ModelMapper {
           if(p.name.startsWith(par.name)){
             p.name = p.name.substring(par.name.length)
           }
+
+          if(p.logicalName.startsWith(par.logicalName)){
+            p.logicalName = p.logicalName.substring(par.logicalName.length)
+          }
         }
         else {
           res.append(p)
