@@ -1,5 +1,7 @@
 package com.munisso.proxyapp.generators.node
 
+import scala.collection.JavaConverters._
+
 import com.munisso.proxyapp.generators.PropertyNames
 import com.munisso.proxyapp.models._
 import com.munisso.proxyapp.util.IndentedPrintWriter
@@ -13,7 +15,7 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, property
 
   protected def getContentType(): String
 
-  def writeProperties(parameters: Iterable[MappingParameter]): Unit = {
+  def writeProperties(remoteUrl: String, parameters: Iterable[MappingParameter]): Unit = {
 
     // TODO get the content type from the mapping
     writer.printLn("var %s = writerFactory.getWriter(%s);", propertyNames.requestWriter, getContentType() )
@@ -21,9 +23,25 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, property
 
     writeProperties(parameters, null, null, null)
 
-    if(queryString.length > 0 ){
+    // TODO: don't hardcode protocol
+    if(remoteUrl.nonEmpty) {
+      writer.printLn("var urlString = 'https://%s';", remoteUrl)
+      writer.printLn("var rHeaders = {};")
+    }
+
+    if(queryString.nonEmpty ){
       writer.printLn("urlString = urlString + '?'%s;", queryString.toString)
     }
+  }
+
+  private def buildRequestUrl(route: Route): String = {
+    val replacements = route.buildRequest.asScala
+      .filter( x => x.location == Locations.LOCATION_URL)
+      .map( x => String.format(".replace('{%s}', %s)", x.name, this.formatValue(x)))
+      .mkString("")
+
+    // TODO: don't hardcode protocol
+    String.format("'https://%s'%s", route.remoteUrl, replacements)
   }
 
   private def writeProperties(parameters: Iterable[MappingParameter], parentParameter: MappingParameter, parentIterationVariable: String, parentVariable: String): Unit = {

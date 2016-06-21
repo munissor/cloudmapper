@@ -16,12 +16,6 @@ import com.munisso.proxyapp.util.IndentedPrintWriter
   */
 class NodeGenerator extends Generator {
 
-  private val LOCATION_HEADER: String = "header"
-  private val LOCATION_URL: String = "url"
-  private val LOCATION_QUERY: String = "query"
-  private val LOCATION_BODY: String = "body"
-
-
   def generate(mapping: Mapping): List[CodeFile] = {
     val l = new ListBuffer[CodeFile]
 
@@ -94,47 +88,14 @@ class NodeGenerator extends Generator {
 
     writeMappingError(route.routeError, indentedPrintWriter)
 
-    // extracts url parameters
     val reader = new NodeGeneratorRestifyPropertyReader(indentedPrintWriter)
     reader.extractProperties(route.parseRequest.asScala)
 
-    /*val parseRequest = route.parseRequest.asScala
-    parseRequest.filter( x => x.location == LOCATION_URL).foreach( x => {
-      val varName = this.requestVariable(x)
-
-      indentedPrintWriter.printLn("var %s = %s;", varName, formatExtractParameter("req.params.%s", x))
-    })
-
-    parseRequest.filter( x => x.location == LOCATION_QUERY).foreach( x => {
-      val varName = this.requestVariable(x)
-      indentedPrintWriter.printLn("var %s = %s;", varName, formatExtractParameter("req.query.%s", x))
-    })
-
-    parseRequest.filter( x => x.location == LOCATION_HEADER).foreach( x => {
-      val varName = this.requestVariable(x)
-      indentedPrintWriter.printLn("var %s = %s;", varName, formatExtractParameter("req.header('%s')", x))
-    })
-
-    parseRequest.filter( x => x.location == null).foreach( x => {
-      val varName = this.requestVariable(x)
-      indentedPrintWriter.printLn("var %s = '%s';", varName, x.value)
-    })*/
-
-
-    // BUILD request
     indentedPrintWriter.printLn()
-    // TODO: don't hardcode protocol
-    indentedPrintWriter.printLn("var urlString = 'https://%s';", route.remoteUrl)
-    indentedPrintWriter.printLn("var rHeaders = {};");
 
     var reqWriter = new NodeGeneratorRequestPropertyWriter(indentedPrintWriter)
-    reqWriter.writeProperties(route.buildRequest.asScala)
+    reqWriter.writeProperties(route.remoteUrl, route.buildRequest.asScala)
 
-/*
-    indentedPrintWriter.printLn()
-    route.buildRequest.asScala.filter( p => p.location == LOCATION_HEADER)
-      .foreach( x => indentedPrintWriter.printLn("rHeaders['%s'] = %s;", x.name, formatValue(x) ))
-*/
 
     var body = null
     indentedPrintWriter.printLn()
@@ -150,7 +111,6 @@ class NodeGenerator extends Generator {
     indentedPrintWriter.increaseIndent()
 
 
-    //val parseResponse = route.parseResponse.asScala
     var resReader = new NodeGeneratorRequestPropertyReader(indentedPrintWriter)
     resReader.extractProperties(route.parseResponse.asScala)
 
@@ -158,14 +118,8 @@ class NodeGenerator extends Generator {
 
     // Build response
     var resWriter = new NodeGeneratorRestifyPropertyWriter(indentedPrintWriter)
-    resWriter.writeProperties(route.buildResponse.asScala)
+    resWriter.writeProperties("", route.buildResponse.asScala)
 
-    /*val buildResponse = route.buildResponse.asScala
-    buildResponse.filter( x => x.location == LOCATION_HEADER).foreach( x => {
-      val varName = this.responseVariable(x)
-      indentedPrintWriter.printLn("var %s = %s;", varName, formatExtractParameter("req.headers['%s']", x))
-      indentedPrintWriter.printLn("res.header('%s', %s);", x.name, formatValue(x))
-    })*/
 
     // TODO: map status ?
     indentedPrintWriter.printLn("var status = response.statusCode;")
@@ -193,25 +147,6 @@ class NodeGenerator extends Generator {
     }
   }
 
-  private def buildRequestUrl(route: Route): String = {
-    val replacements = route.buildRequest.asScala
-      .filter( x => x.location == LOCATION_URL)
-      .map( x => String.format(".replace('{%s}', %s)", x.name, this.formatValue(x)))
-      .mkString("")
-
-    // TODO: don't hardcode protocol
-    String.format("'https://%s'%s", route.remoteUrl, replacements)
-  }
-
-  private def formatValue(parameter: MappingParameter): String = {
-    if(parameter.format != null && parameter.format.length() > 0 ){
-      return String.format("formatUtils.format%s(%s, '%s')", parameter.kind, this.requestVariable(parameter), parameter.format)
-    }
-
-    this.requestVariable(parameter)
-  }
-
-  private def formatExtractParameter(format: String, parameter: MappingParameter) = getNames(parameter).map( String.format(format, _)).mkString(" || ")
 
   private def writeMappingError(error: MappingError, indentedPrintWriter: IndentedPrintWriter) = {
     if(error != null) {
