@@ -1,5 +1,9 @@
 package com.munisso.proxyapp.mappers
 
+import java.io.File
+
+import com.fasterxml.jackson.databind.{ObjectMapper, SerializationFeature}
+
 import scala.collection.mutable._
 import scala.collection.JavaConversions._
 import com.munisso.proxyapp.models._
@@ -10,61 +14,15 @@ import com.munisso.proxyapp.models._
   */
 class ModelMapper {
 
+  def mapModels(sourcePath: String, destinationPath: String): Mapping = {
+    val sourceFile = new File(sourcePath)
+    val destinationFile = new File(destinationPath)
 
-  private def extractArguments(location: String, parameters: Array[Parameter]): ListBuffer[MappingParameter] = {
-    val res = new ListBuffer[MappingParameter]
+    val sourceModel = readModelFromFile(sourceFile)
+    val destinationModel = readModelFromFile(destinationFile)
 
-    if (parameters != null) {
-
-      parameters.foreach( h => {
-
-        val m = MappingParameter.fromParameter(h)
-        m.location = location
-
-        res += m
-
-      })
-    }
-
-    return res
+     mapModels(sourceModel, destinationModel)
   }
-
-  private def extractBodyArguments(body: Parameter): ListBuffer[MappingParameter] = {
-    val res = new ListBuffer[MappingParameter]
-
-    if( body != null ) {
-      extractBodyArguments("", body, res)
-    }
-
-    return res
-  }
-
-  private def extractBodyArguments(prefix: String, parameter: Parameter, extracted: ListBuffer[MappingParameter]): Unit = {
-
-    val fullName = appendPrefix(prefix, parameter.name)
-
-    if( parameter.logicalName != null ) {
-
-      val m = MappingParameter.fromParameter(parameter);
-      m.location = "body"
-      m.name = fullName
-
-      extracted.append(m)
-    }
-
-    if(parameter.kind == Types.Object && parameter.properties != null ) {
-      parameter.properties.foreach( x => extractBodyArguments(fullName, x, extracted))
-    }
-  }
-
-  private def appendPrefix(prefix: String, toAppend: String): String = {
-
-    if( prefix.length() > 0){
-      return prefix + "." + toAppend
-    }
-    return toAppend
-  }
-
 
   def mapModels(source: Model, destination: Model): Mapping = {
 
@@ -175,7 +133,68 @@ class ModelMapper {
     return mapping
   }
 
-  def aggregateParameters(parameters: List[MappingParameter]) : ListBuffer[MappingParameter] = {
+  private def readModelFromFile(file: File): Model = {
+    val mapper: ObjectMapper = new ObjectMapper
+    //mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+
+    mapper.readValue(file, classOf[Model])
+  }
+
+  private def extractArguments(location: String, parameters: Array[Parameter]): ListBuffer[MappingParameter] = {
+    val res = new ListBuffer[MappingParameter]
+
+    if (parameters != null) {
+
+      parameters.foreach( h => {
+
+        val m = MappingParameter.fromParameter(h)
+        m.location = location
+
+        res += m
+
+      })
+    }
+
+    return res
+  }
+
+  private def extractBodyArguments(body: Parameter): ListBuffer[MappingParameter] = {
+    val res = new ListBuffer[MappingParameter]
+
+    if( body != null ) {
+      extractBodyArguments("", body, res)
+    }
+
+    return res
+  }
+
+  private def extractBodyArguments(prefix: String, parameter: Parameter, extracted: ListBuffer[MappingParameter]): Unit = {
+
+    val fullName = appendPrefix(prefix, parameter.name)
+
+    if( parameter.logicalName != null ) {
+
+      val m = MappingParameter.fromParameter(parameter);
+      m.location = "body"
+      m.name = fullName
+
+      extracted.append(m)
+    }
+
+    if(parameter.kind == Types.Object && parameter.properties != null ) {
+      parameter.properties.foreach( x => extractBodyArguments(fullName, x, extracted))
+    }
+  }
+
+  private def appendPrefix(prefix: String, toAppend: String): String = {
+
+    if( prefix.length() > 0){
+      return prefix + "." + toAppend
+    }
+    return toAppend
+  }
+
+  private def aggregateParameters(parameters: List[MappingParameter]) : ListBuffer[MappingParameter] = {
     val sorted = parameters.sortBy( x => x.logicalName )
     val res = new ListBuffer[MappingParameter]
 
