@@ -109,7 +109,18 @@
             "format": "iso8601"
           }
         ],
-        "body": null
+        "body": {
+          "name": "CreateBucketConfiguration",
+          "kind": "Object",
+          "properties": [
+            {
+              "name": "LocationConstraint",
+              "logicalName": "LocationConstraint",
+              "kind": "String",
+              "optional": true
+            }
+          ]
+        }
       },
       "response": {
         "headers": [
