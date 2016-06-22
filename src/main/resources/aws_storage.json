@@ -124,6 +124,11 @@
       },
       "response": {
         "headers": [
+          {
+            "name": "ETag",
+            "logicalName": "ETag",
+            "kind": "String"
+          }
         ],
         "body": null
       }
@@ -132,13 +137,8 @@
       "name": "DeleteContainer",
       "request": {
         "verb": "DELETE",
-        "url": "{account}.blob.core.windows.net/{name}",
+        "url": "s3.amazonaws.com/{name}",
         "urlReplacements": [
-          {
-            "name": "account",
-            "logicalName": "AccountName",
-            "kind": "String"
-          },
           {
             "name": "name",
             "logicalName": "ObjectName",
@@ -146,26 +146,36 @@
           }
         ],
         "queryString": [
-          {
-            "name": "restype",
-            "logicalName": "ObjectType",
-            "kind": "String",
-            "value": "container"
-          },
-          {
-            "name": "timeout",
-            "logicalName": "OperationTimeout",
-            "kind": "Number",
-            "optional": true
-          }
+
         ],
         "headers":[
-
+          {
+            "name": "Authorization",
+            "logicalName": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date",
+            "format": "iso8601"
+          }
         ],
         "body": null
       },
       "response": {
         "headers": [
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date",
+            "format": "iso8601"
+          },
+          {
+            "name": "ETag",
+            "logicalName": "ETag",
+            "kind": "String"
+          }
         ],
         "body": null
       }
@@ -173,14 +183,9 @@
     {
       "name": "ListObjects",
       "request": {
-        "verb": "TODO",
-        "url": "{account}.blob.core.windows.net/{name}",
+        "verb": "GET",
+        "url": "s3.amazonaws.com/{name}",
         "urlReplacements": [
-          {
-            "name": "account",
-            "logicalName": "AccountName",
-            "kind": "String"
-          },
           {
             "name": "name",
             "logicalName": "ObjectName",

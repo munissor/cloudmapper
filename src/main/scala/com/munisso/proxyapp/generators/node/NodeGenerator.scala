@@ -83,6 +83,7 @@ class NodeGenerator extends Generator {
     // replace url arguments with restify paramters
     path = path.replaceAll("__(:?[a-z0-9]+)__", ":$1")
 
+    indentedPrintWriter.printLn("// %s", route.name)
     indentedPrintWriter.printLn("server.%s('%s', function(req, res, next){", getRestifyRoute(route.verb), path)
     indentedPrintWriter.increaseIndent()
 

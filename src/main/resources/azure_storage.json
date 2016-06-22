@@ -370,6 +370,36 @@
             "value": "list"
           },
           {
+            "name": "prefix",
+            "logicalName": "ObjectFilter",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "delimiter",
+            "logicalName": "Delimiter",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "marker",
+            "logicalName": "PaginationToken",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "maxresults",
+            "logicalName": "PaginationSize",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "include",
+            "logicalName": "ObjectTypeFilter",
+            "kind": "String",
+            "optional": true
+          },
+          {
             "name": "timeout",
             "logicalName": "OperationTimeout",
             "kind": "Number",
@@ -377,7 +407,28 @@
           }
         ],
         "headers":[
-
+          {
+            "name": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "x-ms-date",
+            "aliases": ["Date"],
+            "logicalName": "Date",
+            "kind": "Date"
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19"
+          },
+          {
+            "name": "x-ms-client-request-id",
+            "logicalName": "ClientRequestId",
+            "kind": "String",
+            "optional": true
+          }
         ],
         "body": null
       },

@@ -24,7 +24,7 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, property
     writeProperties(parameters, null, null, null)
 
     // TODO: don't hardcode protocol
-    if(remoteUrl.nonEmpty) {
+    if(remoteUrl != null && remoteUrl.nonEmpty) {
       writer.printLn("var urlString = 'https://%s';", remoteUrl)
       writer.printLn("var rHeaders = {};")
     }
