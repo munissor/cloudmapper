@@ -27,57 +27,57 @@ public class Main {
         //String dir = System.getProperty("user.dir");
 
 
-
-        HttpEntity entity;
-        HttpResponse resp;
-
-        // Sun, 11 Oct 2009 21:49:13 GMT
-        final String DATEFORMAT = "EEE, dd MMM yyyy HH:mm:ss z";
-
-        final SimpleDateFormat sdf = new SimpleDateFormat(DATEFORMAT);
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        final String utcTime = sdf.format(new Date());
-        final String secret = "B7wPXLWFU4BP62Z4fKBvQfiIRsMblRkzB49CaBGms8HMwj6X6q5a1CellQeSglRcmdtQz+bgxkC0reNmu9GxPQ==";
-
-        String listUrl = "http://localhost:8080/?comp=list";
-        String createUrl = "http://localhost:8080/testapicontainer3?restype=container";
-        String listBlobsUrl = "http://localhost:8080/testapicontainer?restype=container&comp=list";
-        String createBlobUrl = "http://localhost:8080/testapicontainer/myblob";
-
-        //URL url = new URL("http://riccardonci.blob.core.windows.net/riccardocontainer?restype=container");
-
-        final boolean useProxy = false;
-        HttpClientBuilder builder = HttpClientBuilder.create();
-        builder = builder.disableContentCompression().disableConnectionState();
-
-        if(useProxy)
-        {
-            HttpHost p = new HttpHost("localhost", 8888, "http");
-            DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(p);
-            builder = builder.setRoutePlanner(routePlanner);
-        }
-
-        builder.addInterceptorLast((HttpRequestInterceptor) (request, context) -> {
-            try {
-                SignRequest(request, "riccardonci", secret);
-            }
-            catch (Exception e){
-
-            }
-
-        });
-
-        HttpClient httpclient = builder.build();
-
-
-        // LIST CONTAINER
-        HttpRequestBase listContainer = new HttpGet(listUrl);
-        listContainer.addHeader("x-ms-date", utcTime);
-        listContainer.addHeader("x-ms-version", "2015-04-05");
-
-        resp = httpclient.execute(listContainer);
-        entity = resp.getEntity();
-        EntityUtils.consume(entity);
+//
+//        HttpEntity entity;
+//        HttpResponse resp;
+//
+//        // Sun, 11 Oct 2009 21:49:13 GMT
+//        final String DATEFORMAT = "EEE, dd MMM yyyy HH:mm:ss z";
+//
+//        final SimpleDateFormat sdf = new SimpleDateFormat(DATEFORMAT);
+//        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+//        final String utcTime = sdf.format(new Date());
+//
+//
+//        String listUrl = "http://localhost:8080/?comp=list";
+//        String createUrl = "http://localhost:8080/testapicontainer3?restype=container";
+//        String listBlobsUrl = "http://localhost:8080/testapicontainer?restype=container&comp=list";
+//        String createBlobUrl = "http://localhost:8080/testapicontainer/myblob";
+//
+//        //URL url = new URL("http://riccardonci.blob.core.windows.net/riccardocontainer?restype=container");
+//
+//        final boolean useProxy = false;
+//        HttpClientBuilder builder = HttpClientBuilder.create();
+//        builder = builder.disableContentCompression().disableConnectionState();
+//
+//        if(useProxy)
+//        {
+//            HttpHost p = new HttpHost("localhost", 8888, "http");
+//            DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(p);
+//            builder = builder.setRoutePlanner(routePlanner);
+//        }
+//
+//        builder.addInterceptorLast((HttpRequestInterceptor) (request, context) -> {
+//            try {
+//                SignRequest(request, "riccardonci", secret);
+//            }
+//            catch (Exception e){
+//
+//            }
+//
+//        });
+//
+//        HttpClient httpclient = builder.build();
+//
+//
+//        // LIST CONTAINER
+//        HttpRequestBase listContainer = new HttpGet(listUrl);
+//        listContainer.addHeader("x-ms-date", utcTime);
+//        listContainer.addHeader("x-ms-version", "2015-04-05");
+//
+//        resp = httpclient.execute(listContainer);
+//        entity = resp.getEntity();
+//        EntityUtils.consume(entity);
 
         // PUT CONTAINER
         //HttpRequestBase createContainer = new HttpPut(createUrl);
@@ -141,99 +141,5 @@ public class Main {
 
 
     
-    private static void SignRequest(HttpRequest request, String accountName, String sharedKey) throws Exception
-    {
 
-        StringBuffer buffer = new StringBuffer(request.getRequestLine().getMethod());
-        AppendHeaderValue(buffer, request, "Content-Encoding");
-        AppendHeaderValue(buffer, request, "Content-Language");
-        AppendHeaderValue(buffer, request, "Content-Length");
-        AppendHeaderValue(buffer, request, "Content-MD5");
-        AppendHeaderValue(buffer, request, "Content-Type");
-        AppendHeaderValue(buffer, request, "Date");
-        AppendHeaderValue(buffer, request, "If-Modified-Since");
-        AppendHeaderValue(buffer, request, "If-Match");
-        AppendHeaderValue(buffer, request, "If-None-Match");
-        AppendHeaderValue(buffer, request, "If-Unmodified-Since");
-        AppendHeaderValue(buffer, request, "Range");
-        AppendValue(buffer, BuildCanonicalizedHeaders(request));
-        AppendValue(buffer, BuildCanonicalizedResource(request, accountName));
-
-        String hash = HashRequestString(buffer.toString(), sharedKey);
-
-        request.addHeader("Authorization", "SharedKey " + accountName + ":" + hash);
-    }
-
-    private static String HashRequestString(String stringToSign, String sharedKey) throws NoSuchAlgorithmException, InvalidKeyException
-    {
-        final Charset utf8 = Charset.forName("UTF-8");
-        final Mac hmacSha256 = Mac.getInstance("HmacSHA256");
-        final SecretKeySpec secret_key = new javax.crypto.spec.SecretKeySpec(Base64.getDecoder().decode(sharedKey), "HmacSHA256");
-        hmacSha256.init(secret_key);
-        final byte[] mac_data = hmacSha256.doFinal(stringToSign.getBytes(utf8));
-
-        return Base64.getEncoder().encodeToString(mac_data);
-    }
-    
-    private static void AppendValue(StringBuffer buffer, String value)
-    {
-        buffer.append("\n");
-        buffer.append(value);
-    }
-    
-    private static void AppendHeaderValue(StringBuffer buffer, HttpRequest request, String headerName)
-    {
-        Header header = request.getFirstHeader(headerName);
-        String value;
-        if(header != null )
-        {
-            value = header.getValue();
-        }
-        else
-        {
-            value = "";
-        }
-        AppendValue(buffer, value);
-    }
-    
-    private static String BuildCanonicalizedHeaders(HttpRequest request)
-    {
-        StringBuffer buffer = new StringBuffer();
-        Header[] headers = request.getAllHeaders();
-        Arrays.sort(headers, (o1, o2) -> o1.getName().compareTo(o2.getName()));
-
-        for (Header item : headers) {
-            String lcName = item.getName().toLowerCase();
-            if(lcName.startsWith("x-ms-")) {
-                if (buffer.length() > 0) {
-                    buffer.append("\n");
-                }
-
-                buffer.append(lcName);
-                buffer.append(":");
-                buffer.append(item.getValue());
-            }
-        }
-
-        return buffer.toString();
-    }
-
-    private static String BuildCanonicalizedResource(HttpRequest request, String accountName) throws Exception
-    {
-        StringBuffer buffer = new StringBuffer("/");
-        buffer.append(accountName);
-        String requestUri = request.getRequestLine().getUri();
-        URI uri = new URI(requestUri);
-
-        buffer.append(uri.getPath());
-
-        List<NameValuePair> params = URLEncodedUtils.parse(uri, "UTF-8");
-        params.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
-
-        for (NameValuePair pair : params ) {
-            AppendValue(buffer, pair.getName() + ":" + pair.getValue());
-        }
-
-        return buffer.toString();
-    }
 }

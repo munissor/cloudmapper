@@ -101,14 +101,14 @@
           },
           {
             "name": "x-ms-version",
-            "logicalName": "Version",
+            "logicalName": "ApiVersion",
             "kind": "String",
             "value": "2009-09-19",
             "optional": true
           },
           {
             "name": "Date",
-            "logicalName": "ContentType",
+            "logicalName": "Date",
             "kind": "Date"
           }
         ],
@@ -251,7 +251,7 @@
           },
           {
             "name": "x-ms-client-request-id",
-            "logicalName": "RequestId",
+            "logicalName": "ClientRequestId",
             "kind": "String",
             "optional": true
           }
@@ -262,12 +262,13 @@
         "headers": [
           {
             "name": "ETag",
-            "logicalName": "RequestId",
+            "logicalName": "ETag",
             "kind": "String",
             "optional": true
           },
           {
             "name": "Last-Modified",
+            "logicalName": "LastModified",
             "kind": "Date",
             "optional": true
           },

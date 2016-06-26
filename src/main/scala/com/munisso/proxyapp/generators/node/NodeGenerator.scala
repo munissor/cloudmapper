@@ -152,7 +152,7 @@ class NodeGenerator extends Generator {
   private def writeMappingError(error: MappingError, indentedPrintWriter: IndentedPrintWriter) = {
     if(error != null) {
       indentedPrintWriter.printLn("// FIXME")
-      indentedPrintWriter.printLn("throw new Error(%s)", error.message)
+      indentedPrintWriter.printLn("throw new Error('%s');", error.message)
     }
   }
 

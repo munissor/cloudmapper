@@ -9,6 +9,7 @@
 		"request": "*",
 		"aws-signer-v4": "*",
 		"xmldom": "*",
+		"xmlbuilder": "*",
 		"xpath": "*"
 	}
 }

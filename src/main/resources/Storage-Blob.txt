@@ -1,0 +1,57 @@
+ListContainers
+
+REQ:
+
+AccountName: String
+Authorization: Signature
+OperationType: String
+ContainerFilter: String
+PaginationMarker: String
+PaginationSize: Number
+OperationMetadata: String // include or not operation metadata
+OperationTimeout: Number
+Date: Date
+ContentType: String
+ApiVersion: String
+ClientRequestId: String
+
+RES
+
+ContentType: String
+RequestId: String
+ApiVersion: String
+Date: Date
+ContainerFilter: String
+PaginationMarker: String
+PaginationSize: Number
+Containers: Object[]
+    Name: String
+    LastModified: Date
+    CreationDate: Date
+    Etag: String
+    LeaseStatus: String
+    LeaseState: String
+    LeaseDuration: String
+PaginationNextMarker: String
+OwnerId: String
+OwnerName: String
+
+
+PutContainer
+
+REQ
+AccountName: String
+ObjectName: String
+ObjectType: String
+OperationTimeout: String
+Authorization: Signature
+Date: Date
+ApiVersion: String
+ClientRequestId: String
+PublicAccess: String
+LocationConstraint: String
+
+RES
+ETag: String
+LastModified: Dates
+
