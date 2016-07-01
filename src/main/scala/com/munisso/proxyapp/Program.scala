@@ -36,8 +36,8 @@ object Program {
      var basePath = Paths.get(System.getProperty("user.dir"), "nodeproxy").toString
 
      code.foreach( x => {
-       var file = Paths.get(basePath, x.name).toFile
-       var dir = file.getParentFile()
+       val file = Paths.get(basePath, x.name).toFile
+       val dir = file.getParentFile
 
        dir.mkdirs()
        val w = new FileWriter(file)
