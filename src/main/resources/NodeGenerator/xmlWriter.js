@@ -37,7 +37,11 @@ function XMLWriter(){
             p = t;
         }
 
-        p[names[names.length-1]] = value;
+        if( typeof p[names[names.length-1]] === 'undefined' ){
+                    p[names[names.length-1]] = [];
+        }
+
+        p[names[names.length-1]].push(value);
         return value;
     }
 }

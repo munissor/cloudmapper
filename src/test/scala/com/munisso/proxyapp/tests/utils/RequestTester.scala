@@ -52,13 +52,13 @@ abstract class RequestTester(val method: String, val providerUri: String, val pr
     providerResponse = httpClient.execute(providerRequest.build)
     val e = providerResponse.getEntity()
     if( e != null )
-      providerResponseEntity = EntityUtils.toString(e)
+      providerResponseEntity = EntityUtils.toString(e, "utf-8")
     EntityUtils.consume(e)
 
     proxyResponse = httpClient.execute(proxyRequest.build)
     val pe = proxyResponse.getEntity()
     if( pe != null )
-      proxyResponseEntity = EntityUtils.toString(pe)
+      proxyResponseEntity = EntityUtils.toString(pe, "utf-8")
     EntityUtils.consume(pe)
   }
 

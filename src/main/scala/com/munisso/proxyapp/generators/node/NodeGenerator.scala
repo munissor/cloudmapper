@@ -128,7 +128,9 @@ class NodeGenerator extends Generator {
     // TODO: parse response body
     indentedPrintWriter.printLn("var rBody = dstResWriter.toString();")
 
-    indentedPrintWriter.printLn("res.send(status, rBody);")
+    indentedPrintWriter.printLn("res.writeHead(status, {});")
+    indentedPrintWriter.printLn("res.write(rBody);")
+    indentedPrintWriter.printLn("res.end();")
     indentedPrintWriter.printLn("return next();")
 
     indentedPrintWriter.decreaseIndent()

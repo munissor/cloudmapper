@@ -23,8 +23,6 @@ object Program {
 
      val modelMapper = new ModelMapper()
 
-
-
      val mapping = modelMapper.mapModels(azureModel, awsModel)
 
      val out = new FileWriter("./output.mapper")

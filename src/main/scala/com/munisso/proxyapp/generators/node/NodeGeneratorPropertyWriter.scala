@@ -18,16 +18,18 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, property
   def writeProperties(remoteUrl: String, parameters: Iterable[MappingParameter]): Unit = {
 
     // TODO get the content type from the mapping
-    writer.printLn("var %s = writerFactory.getWriter(%s);", propertyNames.requestWriter, getContentType() )
-    writer.printLn()
-
-    writeProperties(parameters, null, null, null)
+    if(parameters.find( x=> x.location == Locations.LOCATION_BODY).isDefined ) {
+      writer.printLn("var %s = writerFactory.getWriter(%s);", propertyNames.requestWriter, getContentType())
+      writer.printLn()
+    }
 
     // TODO: don't hardcode protocol
     if(remoteUrl != null && remoteUrl.nonEmpty) {
       writer.printLn("var urlString = 'https://%s';", remoteUrl)
       writer.printLn("var rHeaders = {};")
     }
+
+    writeProperties(parameters, null, null, null)
 
     if(queryString.nonEmpty ){
       writer.printLn("urlString = urlString + '?'%s;", queryString.toString)
