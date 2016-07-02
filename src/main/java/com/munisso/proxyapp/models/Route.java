@@ -1,5 +1,7 @@
 package com.munisso.proxyapp.models;
 
+import scala.Boolean;
+
 import java.util.ArrayList;
 import java.util.List;
 

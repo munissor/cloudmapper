@@ -9,7 +9,7 @@ import com.munisso.proxyapp.util.IndentedPrintWriter
 /**
   * Created by rmunisso on 12/06/2016.
   */
-abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, propertyNames: PropertyNames) {
+abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, val propertyNames: PropertyNames) {
 
   private val queryString = new StringBuilder()
 
@@ -17,10 +17,16 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, property
 
   def writeProperties(remoteUrl: String, parameters: Iterable[MappingParameter]): Unit = {
 
-    // TODO get the content type from the mapping
-    if(parameters.find( x=> x.location == Locations.LOCATION_BODY).isDefined ) {
-      writer.printLn("var %s = writerFactory.getWriter(%s);", propertyNames.requestWriter, getContentType())
-      writer.printLn()
+    val bodyArg = parameters.find( x=> x.location == Locations.LOCATION_BODY)
+    bodyArg match {
+      case Some(i) => {
+        val contentType = i.kind match {
+          case Types.Binary => "'_raw'"
+          case _ => getContentType()
+        }
+        writer.printLn("var %s = writerFactory.getWriter(%s);", propertyNames.requestWriter, contentType)
+      }
+      case None =>
     }
 
     // TODO: don't hardcode protocol
@@ -34,17 +40,22 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, property
     if(queryString.nonEmpty ){
       writer.printLn("urlString = urlString + '?'%s;", queryString.toString)
     }
+
+    bodyArg match {
+      case Some(i) =>  writer.printLn("var %s = %s.toString();", propertyNames.body, propertyNames.requestWriter)
+      case _ => writer.printLn("var %s = '';", propertyNames.body)
+    }
   }
 
-  private def buildRequestUrl(route: Route): String = {
-    val replacements = route.buildRequest.asScala
-      .filter( x => x.location == Locations.LOCATION_URL)
-      .map( x => String.format(".replace('{%s}', %s)", x.name, this.formatValue(x)))
-      .mkString("")
-
-    // TODO: don't hardcode protocol
-    String.format("'https://%s'%s", route.remoteUrl, replacements)
-  }
+//  private def buildRequestUrl(route: Route): String = {
+//    val replacements = route.buildRequest.asScala
+//      .filter( x => x.location == Locations.LOCATION_URL)
+//      .map( x => String.format(".replace('{%s}', %s)", x.name, this.formatValue(x)))
+//      .mkString("")
+//
+//    // TODO: don't hardcode protocol
+//    String.format("'https://%s'%s", route.remoteUrl, replacements)
+//  }
 
   private def writeProperties(parameters: Iterable[MappingParameter], parentParameter: MappingParameter, parentIterationVariable: String, parentVariable: String): Unit = {
     parameters.foreach( x => {
@@ -79,7 +90,7 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, property
 
     parameter.location match {
       case Locations.LOCATION_URL => {
-        writer.printLn(String.format("%s.replace('{%s}', %s);", propertyNames.requestUrl(), parameter.name, this.formatValue(parameter)))
+        writer.printLn(String.format("%s = %s.replace('{%s}', %s);", propertyNames.requestUrl, propertyNames.requestUrl, parameter.name, this.formatValue(parameter)))
       }
       case Locations.LOCATION_QUERY => {
         if(queryString.length > 0){
@@ -91,7 +102,7 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, property
         writer.printLn(String.format("%s['%s'] = %s;", propertyNames.requestHeaders, parameter.name, formatValue(parameter)))
       }
       case Locations.LOCATION_BODY => {
-        val value = if(parentIterationVariable != null) String.format("%s['%s']", parentIterationVariable, normalizeParameter(parameter.logicalName)) else ""
+        val value = if(parentIterationVariable != null) String.format("%s['%s']", parentIterationVariable, normalizeParameter(parameter.logicalName)) else formatValue(parameter)
         val parent = if(parentVariable != null) ", " + parentVariable else ""
         writer.printLn(String.format("%s.writeValue('%s',%s%s);", propertyNames.requestWriter, normalizeParameter(parameter.name), value, parent))
       }

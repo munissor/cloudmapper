@@ -18,13 +18,15 @@ import java.util.List;
 
 public class AzureSignature {
 
+    private static final List<String> contentLengthIgnore = Arrays.asList("0");
+
     public static void SignRequest(HttpRequest request, String accountName, String sharedKey) throws Exception
     {
 
         StringBuffer buffer = new StringBuffer(request.getRequestLine().getMethod());
         AppendHeaderValue(buffer, request, "Content-Encoding");
         AppendHeaderValue(buffer, request, "Content-Language");
-        AppendHeaderValue(buffer, request, "Content-Length");
+        AppendHeaderValue(buffer, request, "Content-Length", contentLengthIgnore);
         AppendHeaderValue(buffer, request, "Content-MD5");
         AppendHeaderValue(buffer, request, "Content-Type");
         AppendHeaderValue(buffer, request, "Date");
@@ -60,11 +62,18 @@ public class AzureSignature {
 
     private static void AppendHeaderValue(StringBuffer buffer, HttpRequest request, String headerName)
     {
+        AppendHeaderValue(buffer, request, headerName, null);
+    }
+
+    private static void AppendHeaderValue(StringBuffer buffer, HttpRequest request, String headerName, List<String> nullValues)
+    {
         Header header = request.getFirstHeader(headerName);
         String value;
         if(header != null )
         {
             value = header.getValue();
+            if(nullValues != null && nullValues.contains(value))
+                value = "";
         }
         else
         {

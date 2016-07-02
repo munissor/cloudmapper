@@ -1,8 +1,9 @@
 package com.munisso.proxyapp.tests.utils
 
-import org.apache.http.{HttpHost, HttpResponse}
+import org.apache.http.{HttpHost, HttpRequest, HttpResponse}
 import org.apache.http.client.HttpClient
-import org.apache.http.client.methods.RequestBuilder
+import org.apache.http.client.methods.{HttpEntityEnclosingRequestBase, HttpPut, HttpUriRequest, RequestBuilder}
+import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner
 import org.apache.http.util.EntityUtils
@@ -48,15 +49,17 @@ abstract class RequestTester(val method: String, val providerUri: String, val pr
     customizeRequest(proxyRequest)
   }
 
-  def execute(): Unit = {
-    providerResponse = httpClient.execute(providerRequest.build)
-    val e = providerResponse.getEntity()
+  def execute(body: Option[String] = None): Unit = {
+    val providerReq = buildRequest(body, providerRequest)
+    providerResponse = httpClient.execute(providerReq)
+    val e = providerResponse.getEntity
     if( e != null )
       providerResponseEntity = EntityUtils.toString(e, "utf-8")
     EntityUtils.consume(e)
 
-    proxyResponse = httpClient.execute(proxyRequest.build)
-    val pe = proxyResponse.getEntity()
+    val proxyReq = buildRequest(body, proxyRequest)
+    proxyResponse = httpClient.execute(proxyReq)
+    val pe = proxyResponse.getEntity
     if( pe != null )
       proxyResponseEntity = EntityUtils.toString(pe, "utf-8")
     EntityUtils.consume(pe)
@@ -78,6 +81,16 @@ abstract class RequestTester(val method: String, val providerUri: String, val pr
   def testResponseCode: TestResult = {
       new TestResult("$status", providerResponse.getStatusLine.getStatusCode.toString, proxyResponse.getStatusLine.getStatusCode.toString)
    }
+
+
+  private def buildRequest(body: Option[String], request: RequestBuilder): HttpUriRequest = {
+    body match {
+      case Some(i) => request.setEntity(new StringEntity(i))
+      case None =>
+    }
+
+    request.build
+  }
 
 
 

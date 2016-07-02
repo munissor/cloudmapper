@@ -1,8 +1,12 @@
+
+var rawParser = require('./rawParser');
 var xmlParser = require('./xmlParser');
 var jsonParser = require('./jsonParser');
 
 var MIME_TYPES = {
+    '_raw': rawParser,
     'application/xml': xmlParser,
+    'text/xml': xmlParser,
     'application/json': jsonParser,
 };
 

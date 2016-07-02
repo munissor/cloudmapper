@@ -27,10 +27,12 @@ class NodeGenerator extends Generator {
     l.append(readResource("signature.js"))
     l.append(readResource("formatUtils.js"))
 
+    l.append(readResource("rawParser.js"))
     l.append(readResource("xmlParser.js"))
     l.append(readResource("jsonParser.js"))
     l.append(readResource("parserFactory.js"))
 
+    l.append(readResource("rawWriter.js"))
     l.append(readResource("xmlWriter.js"))
     l.append(readResource("jsonWriter.js"))
     l.append(readResource("writerFactory.js"))
@@ -57,7 +59,7 @@ class NodeGenerator extends Generator {
     indentedWriter.printLn("{")
     indentedWriter.increaseIndent()
 
-    indentedWriter.printLn("\"port\": 8080")
+    indentedWriter.printLn("\"port\": 3000")
 
     indentedWriter.decreaseIndent()
     indentedWriter.printLn("}")
@@ -92,18 +94,11 @@ class NodeGenerator extends Generator {
     val reader = new NodeGeneratorRestifyPropertyReader(indentedPrintWriter)
     reader.extractProperties(route.parseRequest.asScala)
 
-    indentedPrintWriter.printLn()
 
     var reqWriter = new NodeGeneratorRequestPropertyWriter(indentedPrintWriter)
     reqWriter.writeProperties(route.remoteUrl, route.buildRequest.asScala)
 
-
-    var body = null
-    indentedPrintWriter.printLn()
-    indentedPrintWriter.printLn("var body = '';")
-    indentedPrintWriter.printLn()
-
-    indentedPrintWriter.printLn("var options = {method: '%s', url: urlString, body: body, headers: rHeaders};", route.remoteVerb )
+    indentedPrintWriter.printLn("var options = {method: '%s', url: urlString, body: %s, headers: rHeaders};", route.remoteVerb, reqWriter.propertyNames.body )
     indentedPrintWriter.printLn()
 
     indentedPrintWriter.printLn("signature.buildSignature('%s', options);", mapping.signature)
@@ -115,7 +110,6 @@ class NodeGenerator extends Generator {
     var resReader = new NodeGeneratorRequestPropertyReader(indentedPrintWriter)
     resReader.extractProperties(route.parseResponse.asScala)
 
-    indentedPrintWriter.printLn()
 
     // Build response
     var resWriter = new NodeGeneratorRestifyPropertyWriter(indentedPrintWriter)
@@ -125,11 +119,8 @@ class NodeGenerator extends Generator {
     // TODO: map status ?
     indentedPrintWriter.printLn("var status = response.statusCode;")
 
-    // TODO: parse response body
-    indentedPrintWriter.printLn("var rBody = dstResWriter.toString();")
-
     indentedPrintWriter.printLn("res.writeHead(status, {});")
-    indentedPrintWriter.printLn("res.write(rBody);")
+    indentedPrintWriter.printLn("res.write(%s);", resWriter.propertyNames.body)
     indentedPrintWriter.printLn("res.end();")
     indentedPrintWriter.printLn("return next();")
 
@@ -195,6 +186,7 @@ class NodeGenerator extends Generator {
     indentedWriter.printLn()
     indentedWriter.printLn("var server = restify.createServer();")
     indentedWriter.printLn("server.use(restify.queryParser());")
+    indentedWriter.printLn("server.use(restify.bodyParser({ mapParams: false }));")
     indentedWriter.printLn()
 
     mapping.routes.asScala.foreach(r => generateRoute(mapping, r, indentedWriter) )

@@ -18,13 +18,9 @@ class AzureRequestTester(method: String, providerUri: String, proxyUri: String)
     val secret: String = "B7wPXLWFU4BP62Z4fKBvQfiIRsMblRkzB49CaBGms8HMwj6X6q5a1CellQeSglRcmdtQz+bgxkC0reNmu9GxPQ=="
 
     def process(request: HttpRequest, context: HttpContext): Unit = {
-      try {
+
         AzureSignature.SignRequest(request, "riccardonci", secret)
-      }
-      catch {
-        case e: Exception => {
-        }
-      }
+
     }
   }
 

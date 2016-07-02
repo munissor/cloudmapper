@@ -214,30 +214,140 @@
       "response": {
         "headers": [
         ],
+        "body": null
+      }
+    },
+    {
+      "name": "CreateBlob",
+      "request": {
+        "verb": "PUT",
+        "url": "s3.amazonaws.com/{container}/{name}",
+        "urlReplacements": [
+          {
+            "name": "container",
+            "logicalName": "ContainerName",
+            "kind": "String"
+          },
+          {
+            "name": "name",
+            "logicalName": "ObjectName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+
+        ],
+        "headers": [
+          {
+            "name": "Authorization",
+            "logicalName": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date",
+            "format": "iso8601"
+          }
+        ],
         "body": {
-          "logicalName": "asasd",
-          "kind": "Object",
-          "properties": [
-            {
-              "name": "Name",
-              "kind": "String",
-              "logicalName": "Name"
-            },
-            {
-              "name": "Contents",
-              "kind": "Object",
-              "logicalName": "Blobs",
-              "properties": [
-                {
-                  "name": "Key"
-                }
-              ]
-            }
-          ]
+          "name": "",
+          "logicalName": "BlobContent",
+          "kind": "Binary"
+        }
+      },
+      "response": {
+        "headers": [
+        ],
+        "body": null
+      }
+    },
+    {
+      "name": "GetBlob",
+      "request": {
+        "verb": "GET",
+        "url": "s3.amazonaws.com/{container}/{name}",
+        "urlReplacements": [
+          {
+            "name": "container",
+            "logicalName": "ContainerName",
+            "kind": "String"
+          },
+          {
+            "name": "name",
+            "logicalName": "ObjectName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+
+        ],
+        "headers": [
+          {
+            "name": "Authorization",
+            "logicalName": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date",
+            "format": "iso8601"
+          }
+        ],
+        "body": null
+      },
+      "response": {
+        "headers": [
+        ],
+        "body": {
+          "name": "",
+          "logicalName": "BlobContent",
+          "kind": "Binary"
         }
       }
     },
-    {"name": "GetContainerProperties", "request": {}, "response" :{}},
+    {
+      "name": "DeleteBlob",
+      "request": {
+        "verb": "DELETE",
+        "url": "s3.amazonaws.com/{container}/{name}",
+        "urlReplacements": [
+          {
+            "name": "container",
+            "logicalName": "ContainerName",
+            "kind": "String"
+          },
+          {
+            "name": "name",
+            "logicalName": "ObjectName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+
+        ],
+        "headers": [
+          {
+            "name": "Authorization",
+            "logicalName": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date",
+            "format": "iso8601"
+          }
+        ],
+        "body": null
+      },
+      "response": {
+        "headers": [
+        ],
+        "body": null
+      }
+    },
     {"name": "GetContainerMetadata", "request": {}, "response" :{}},
     {"name": "SetContainerMetadata", "request": {}, "response" :{}},
     {"name": "GetContainerACL", "request": {}, "response" :{}}

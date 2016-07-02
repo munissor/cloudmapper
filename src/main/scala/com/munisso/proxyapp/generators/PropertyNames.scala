@@ -31,6 +31,8 @@ class PropertyNames(prefix: String) {
 
   def requestUrl(): String = "urlString"
 
+  def body(): String = prefix + "Body"
+
   private def nestedLogicalName(parameter: MappingParameter, parentParameter: MappingParameter): String = {
     parameter.logicalName.replace(parentParameter.logicalName, "").substring(1)
   }

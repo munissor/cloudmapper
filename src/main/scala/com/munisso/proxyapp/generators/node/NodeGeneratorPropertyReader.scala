@@ -12,16 +12,26 @@ abstract class NodeGeneratorPropertyReader(writer: IndentedPrintWriter, protecte
   def extractProperties(parameters: Iterable[MappingParameter]): Unit = {
     writer.printLn("var %s = {};", propertyNames.variable() )
 
-    val needsBodyParser = parameters.find(x => x.location == Locations.LOCATION_BODY).isDefined
-    if(needsBodyParser){
-      writer.printLn(createParser())
+    val bodyArg = parameters.find( x=> x.location == Locations.LOCATION_BODY)
+    bodyArg match {
+      case Some(i) => {
+        val contentType = i.kind match {
+          case Types.Binary => "'_raw'"
+          case _ => getContentType()
+        }
+        writer.printLn("var %s = parserFactory.getParser(%s, %s);", propertyNames.requestParser, contentType, getBody)
+       }
+      case None =>
     }
 
     writer.printLn()
     extractProperties(parameters, null, null, null)
   }
 
-  protected def createParser(): String
+  protected def getContentType(): String
+
+  protected def getBody(): String
+
 
   private def extractProperties(parameters: Iterable[MappingParameter], parentParameter: MappingParameter, parentIterationVariable: String, parentVariable: String): Unit = {
     parameters.foreach( x => {
@@ -132,11 +142,15 @@ abstract class NodeGeneratorPropertyReader(writer: IndentedPrintWriter, protecte
 class NodeGeneratorRestifyPropertyReader(writer: IndentedPrintWriter)
   extends NodeGeneratorPropertyReader(writer, new PropertyNames("srcReq")) {
 
-  override protected def createParser(): String = String.format("var %s = parserFactory.getParser(req.headers['content-type'], body);", propertyNames.requestParser)
+  override protected def getContentType(): String = "req.headers['content-type']"
+
+  override protected def getBody(): String = "req.body"
 }
 
 class NodeGeneratorRequestPropertyReader(writer: IndentedPrintWriter)
   extends NodeGeneratorPropertyReader(writer, new PropertyNames("dstRes")) {
 
-  override protected def createParser(): String = String.format("var %s = parserFactory.getParser(response.headers['content-type'], body);", propertyNames.requestParser)
+  override protected def getContentType(): String = "response.headers['content-type']"
+
+  override protected def getBody(): String = "body"
 }

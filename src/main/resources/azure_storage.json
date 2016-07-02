@@ -439,12 +439,230 @@
         "body": null
       }
     },
-    {"name": "CreateBlob", "request": {}, "response" :{}},
-    {"name": "GetBlob", "request": {}, "response" :{}},
-    {"name": "GetBlob", "request": {}, "response" :{}},
-    {"name": "GetBlob", "request": {}, "response" :{}},
-    {"name": "GetBlob", "request": {}, "response" :{}},
-    {"name": "DeleteBlob", "request": {}, "response" :{}},
+    {
+      "name": "CreateBlob",
+      "request": {
+        "verb": "PUT",
+        "url": "{account}.blob.core.windows.net/{container}/{name}",
+        "urlReplacements": [
+          {
+            "name": "account",
+            "logicalName": "AccountName",
+            "kind": "String"
+          },
+          {
+            "name": "container",
+            "logicalName": "ContainerName",
+            "kind": "String"
+          },
+          {
+            "name": "name",
+            "logicalName": "ObjectName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+          {
+            "name": "timeout",
+            "logicalName": "OperationTimeout",
+            "kind": "Number",
+            "optional": true
+          }
+        ],
+        "headers": [
+          {
+            "name": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "x-ms-date",
+            "aliases": [
+              "Date"
+            ],
+            "logicalName": "Date",
+            "kind": "Date"
+          },
+          {
+            "name": "x-ms-blob-type",
+            "logicalName": "BlobType",
+            "kind": "String",
+            "value": "BlockBlobs"
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19"
+          },
+          {
+            "name": "x-ms-client-request-id",
+            "logicalName": "ClientRequestId",
+            "kind": "String",
+            "optional": true
+          }
+        ],
+        "body": {
+          "name": "",
+          "logicalName": "BlobContent",
+          "kind": "Binary"
+        }
+      },
+      "response": {
+        "headers": [
+        ],
+        "body": null
+      }
+    },
+    {
+      "name": "GetBlob",
+      "request": {
+        "verb": "GET",
+        "url": "{account}.blob.core.windows.net/{container}/{name}",
+        "urlReplacements": [
+          {
+            "name": "account",
+            "logicalName": "AccountName",
+            "kind": "String"
+          },
+          {
+            "name": "container",
+            "logicalName": "ContainerName",
+            "kind": "String"
+          },
+          {
+            "name": "name",
+            "logicalName": "ObjectName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+          {
+            "name": "timeout",
+            "logicalName": "OperationTimeout",
+            "kind": "Number",
+            "optional": true
+          },
+          {
+            "name": "snapshot",
+            "logicalName": "BlobSnapshot",
+            "kind": "Date",
+            "optional": true
+          }
+        ],
+        "headers": [
+          {
+            "name": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "x-ms-date",
+            "aliases": [
+              "Date"
+            ],
+            "logicalName": "Date",
+            "kind": "Date"
+          },
+          {
+            "name": "x-ms-blob-type",
+            "logicalName": "BlobType",
+            "kind": "String",
+            "value": "BlockBlobs"
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19"
+          }
+        ],
+        "body": null
+      },
+      "response": {
+        "headers": [
+        ],
+        "body": {
+          "name": "",
+          "logicalName": "BlobContent",
+          "kind": "Binary"
+        }
+      }
+    },
+    {
+      "name": "DeleteBlob",
+      "request": {
+        "verb": "DELETE",
+        "url": "{account}.blob.core.windows.net/{container}/{name}",
+        "urlReplacements": [
+          {
+            "name": "account",
+            "logicalName": "AccountName",
+            "kind": "String"
+          },
+          {
+            "name": "container",
+            "logicalName": "ContainerName",
+            "kind": "String"
+          },
+          {
+            "name": "name",
+            "logicalName": "ObjectName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+          {
+            "name": "timeout",
+            "logicalName": "OperationTimeout",
+            "kind": "Number",
+            "optional": true
+          },
+          {
+            "name": "snapshot",
+            "logicalName": "BlobSnapshot",
+            "kind": "Date",
+            "optional": true
+          }
+        ],
+        "headers": [
+          {
+            "name": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "x-ms-date",
+            "aliases": [
+              "Date"
+            ],
+            "logicalName": "Date",
+            "kind": "Date"
+          },
+          {
+            "name": "x-ms-blob-type",
+            "logicalName": "BlobType",
+            "kind": "String",
+            "value": "BlockBlobs"
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19"
+          },
+          {
+            "name": "x-ms-delete-snapshots",
+            "logicalName": "DeleteSnapshots",
+            "kind": "String",
+            "value": "include"
+          }
+        ],
+        "body": null
+      },
+      "response": {
+        "headers": [
+        ],
+        "body": null
+      }
+    },
     {"name": "LeaseBlob", "request": {}, "response" :{}},
     {"name": "SnapshotBlob", "request": {}, "response" :{}},
     {"name": "CopyBlob", "request": {}, "response" :{}},
