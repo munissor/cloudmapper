@@ -3,6 +3,8 @@ package com.munisso.proxyapp.tests
 
 
 
+import java.net.URL
+
 import com.munisso.proxyapp.tests.utils._
 import org.junit.{Before, Test}
 
@@ -11,7 +13,10 @@ import org.junit.{Before, Test}
   */
 class CorrectnessTests {
 
-  private def generateProxyUrl(azureUrl: String): String = azureUrl.replace("riccardonci.blob.core.windows.net", "127.0.0.1:3000")
+  private def generateProxyUrl(azureUrl: String): String = {
+    val url = new URL(azureUrl)
+    azureUrl.replace(url.getHost, "127.0.0.1:3000")
+  }
 
   @Test def testListContainer(): Unit = {
 
@@ -67,5 +72,20 @@ class CorrectnessTests {
   }
 
 
+  @Test def testListQueues(): Unit = {
+    val url = "http://riccardonci.queue.core.windows.net/?comp=list"
+    val proxyUrl = generateProxyUrl(url)
+    val tester = new AzureRequestTester("GET", url, proxyUrl)
+    tester.create()
+    tester.execute()
+  }
 
+  @Test def testCreateQueue(): Unit = {
+    val url = "http://riccardonci.queue.core.windows.net/unittestqueue"
+    val proxyUrl = generateProxyUrl(url)
+    val tester = new AzureRequestTester("PUT", url, proxyUrl)
+    tester.create()
+    tester.addHeaders("Content-Length", 0.toString)
+    tester.execute()
+  }
 }

@@ -1,0 +1,113 @@
+{
+  "provider": "AWS",
+  "service": "Storage",
+  "serviceType": "Queue",
+  "configurations": [
+  ],
+  "signature": "aws-v4",
+  "operations": [
+    {
+      "name": "ListQueues",
+      "request": {
+        "url": "sqs.us-west-2.amazonaws.com/",
+        "verb": "GET",
+        "urlReplacements": [],
+        "queryString": [
+          {
+            "name": "Action",
+            "logicalName": "Operation",
+            "kind": "String",
+            "value": "ListQueues"
+          }
+        ],
+        "headers":[
+          {
+            "name": "Authorization",
+            "logicalName": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date",
+            "format": "iso8601"
+          },
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String",
+            "value": "application/xml"
+          }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "name": "ListQueuesResponse",
+          "kind": "Object",
+          "properties": [
+            {
+              "name": "ListQueuesResult",
+              "kind": "Object",
+              "logicalName": "Queue",
+              "multiple": true,
+              "properties": [
+                {
+                  "name": "QueueUrl",
+                  "logicalName": "Queue.Name",
+                  "kind": "String"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+
+
+    {
+      "name": "CreateQueue",
+      "request": {
+        "url": "sqs.us-west-2.amazonaws.com/",
+        "verb": "GET",
+        "urlReplacements": [],
+        "queryString": [
+          {
+            "name": "Action",
+            "logicalName": "Operation",
+            "kind": "String",
+            "value": "CreateQueue"
+          },
+          {
+            "name": "QueueName",
+            "logicalName": "QueueName",
+            "kind": "String"
+          }
+        ],
+        "headers":[
+          {
+            "name": "Authorization",
+            "logicalName": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date",
+            "format": "iso8601"
+          },
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String",
+            "value": "application/xml"
+          }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": null
+      }
+    }
+  ]
+}

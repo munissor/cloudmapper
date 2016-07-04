@@ -6,23 +6,23 @@ function XMLWriter(){
 
     this.writeValue = function(name, value, parent){
         this._createNode(parent, name, { '#text':  value });
-    }
+    };
 
     this.writeValues = function(name, values, parent) {
          this._createNode(parent, name, values.map(function(i){ return {'#text': i}; }));
-    }
+    };
 
     this.writeObject = function(name, parent) {
        return this._createNode(parent, name, {});
-    }
+    };
 
     this.toString = function() {
         return builder.create(this.data).toString();
-    }
+    };
 
     this._getParent = function(parent){
         return parent || this.data;
-    }
+    };
 
     this._createNode = function(parent, name, value){
         var names = name.split('.');
@@ -43,7 +43,7 @@ function XMLWriter(){
 
         p[names[names.length-1]].push(value);
         return value;
-    }
+    };
 }
 
 

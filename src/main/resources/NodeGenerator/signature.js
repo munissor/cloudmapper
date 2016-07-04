@@ -9,12 +9,11 @@ module.exports = {
 
 function _buildSignature(type, request) {
     if( type === 'aws-v4')
-    {
         _awsV4SignRequest(request);
-    }
-    else if (type == 'azure') {
+    else if (type == 'azure')
         _azureSignRequest(request);
-    }
+    else
+        throw new Error('Unsupported signature algorithm');
 }
 
 
@@ -22,13 +21,20 @@ function  _awsV4SignRequest(request) {
     // request: { path | body, [host], [method], [headers], [service], [region] }
     // credentials: { accessKeyId, secretAccessKey, [sessionToken] }
     var parsedUrl = url.parse(request.url);
+    var idx = parsedUrl.host.indexOf('.');
+    var service = parsedUrl.host.substring(0, idx);
+
+    // add other name of services that require signatures in the query rather than headers
+    var signQuery = service === 'sqs';
+
     var r = {
         path: parsedUrl.path,
         body: request.body,
         host: parsedUrl.host,
         method: request.method,
         headers: request.headers,
-        service: 's3',
+        service: service,
+        signQuery: signQuery
     };
 
     var credentials = {
@@ -36,15 +42,20 @@ function  _awsV4SignRequest(request) {
         secretAccessKey: config.secretAccessKey
     };
 
-    try {
-        awsSigner.sign(r, credentials);
-    }catch(e){
-        console.log(e);
+
+    var signed = awsSigner.sign(r, credentials);
+    if(signQuery) {
+        request.url =
+            parsedUrl.protocol +
+            (parsedUrl.slashes ? '//' : '') +
+            signed.host +
+            signed.path;
     }
 }
 
 
 function _azureSignRequest(request) {
+    return request;
 }
 
 /*

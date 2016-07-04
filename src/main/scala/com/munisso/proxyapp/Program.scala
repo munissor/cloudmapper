@@ -13,11 +13,25 @@ import com.munisso.proxyapp.models.Model
 object Program {
 
    def main(args: Array[String]): Unit = {
-     val mapper: ObjectMapper = new ObjectMapper
-     mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+//     createProxy(
+//       "./src/main/resources/azure_storage.json",
+//       "./src/main/resources/aws_storage.json",
+//       "./output.mapper",
+//       "nodeproxy")
 
-     val azure = new File("./src/main/resources/azure_storage.json")
-     val aws = new File("./src/main/resources/aws_storage.json")
+     createProxy(
+       "./src/main/resources/azure_queue.json",
+       "./src/main/resources/aws_queue.json",
+       "./output.mapper",
+       "nodeproxy")
+   }
+
+   def createProxy(srcData: String, trgData: String, outName: String, proxyName: String): Unit = {
+     val mapper: ObjectMapper = new ObjectMapper
+     mapper.configure(SerializationFeature.INDENT_OUTPUT, true)
+
+     val azure = new File(srcData)
+     val aws = new File(trgData)
      val azureModel = mapper.readValue(azure, classOf[Model])
      val awsModel = mapper.readValue(aws, classOf[Model])
 
@@ -25,7 +39,7 @@ object Program {
 
      val mapping = modelMapper.mapModels(azureModel, awsModel)
 
-     val out = new FileWriter("./output.mapper")
+     val out = new FileWriter(outName)
      mapper.writeValue(out, mapping)
      out.close()
 
@@ -33,7 +47,7 @@ object Program {
 
      val code = generator.generate(mapping)
 
-     var basePath = Paths.get(System.getProperty("user.dir"), "nodeproxy").toString
+     var basePath = Paths.get(System.getProperty("user.dir"), proxyName).toString
 
      code.foreach( x => {
        var file = Paths.get(basePath, x.name).toFile

@@ -1,0 +1,242 @@
+{
+  "provider": "Azure",
+  "service": "Storage",
+  "serviceType": "Queue",
+  "configurations": [
+  ],
+  "signature": "azure",
+  "operations": [
+    {
+      "name": "ListQueues",
+      "request": {
+        "verb": "GET",
+        "url": "{account}.queue.core.windows.net/?comp=list",
+        "urlReplacements": [
+          {
+            "name": "account",
+            "logicalName": "AccountName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+          {
+            "name": "comp",
+            "logicalName": "OperationType",
+            "kind": "String",
+            "value": "list"
+          },
+          {
+            "name": "prefix",
+            "logicalName": "ContainerFilter",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "marker",
+            "logicalName": "PaginationMarker",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "maxresults",
+            "logicalName": "PaginationSize",
+            "kind": "Number",
+            "optional": true
+          },
+          {
+            "name": "include",
+            "logicalName": "OperationMetadata",
+            "kind": "String",
+            "value": "metadata",
+            "optional": true
+          },
+          {
+            "name": "timeout",
+            "logicalName": "OperationTimeout",
+            "kind": "Number",
+            "optional": true
+          }
+        ],
+        "headers": [
+          {
+            "name": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "x-ms-date",
+            "aliases": ["Date"],
+            "logicalName": "Date",
+            "kind": "Date"
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19"
+          },
+          {
+            "name": "x-ms-client-request-id",
+            "logicalName": "ClientRequestId",
+            "kind": "String",
+            "optional": true
+          }
+        ],
+        "body": null
+      },
+      "response" : {
+        "headers": [
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String"
+          },
+          {
+            "name": "x-ms-request-id",
+            "logicalName": "RequestId",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19",
+            "optional": true
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date"
+          }
+        ],
+        "body": {
+          "name": "EnumerationResults",
+          "kind": "Object",
+          "properties": [
+            {
+              "name": "Prefix",
+              "logicalName": "ContainerFilter",
+              "kind": "String"
+            },
+            {
+              "name": "Marker",
+              "logicalName": "PaginationMarker",
+              "kind": "String"
+            },
+            {
+              "name": "MaxResults",
+              "logicalName": "PaginationSize",
+              "kind": "Number"
+            },
+            {
+              "name": "Queues",
+              "kind": "Object",
+              "properties": [
+                {
+                  "name": "Queue",
+                  "logicalName": "Queue",
+                  "multiple": true,
+                  "kind": "Object",
+                  "properties": [
+                    {
+                      "name": "Name",
+                      "logicalName": "Queue.Name",
+                      "kind": "String"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "NextMarker",
+              "logicalName": "PaginationNextMarker",
+              "kind": "String"
+            }
+          ]
+        }
+      }
+    },
+
+
+    {
+      "name": "CreateQueue",
+      "request": {
+        "verb": "PUT",
+        "url": "{account}.queue.core.windows.net/{name}",
+        "urlReplacements": [
+          {
+            "name": "account",
+            "logicalName": "AccountName",
+            "kind": "String"
+          },
+          {
+            "name": "name",
+            "logicalName": "QueueName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+          {
+            "name": "timeout",
+            "logicalName": "OperationTimeout",
+            "kind": "Number",
+            "optional": true
+          }
+        ],
+        "headers": [
+          {
+            "name": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "x-ms-date",
+            "aliases": ["Date"],
+            "logicalName": "Date",
+            "kind": "Date"
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19"
+          },
+          {
+            "name": "x-ms-client-request-id",
+            "logicalName": "ClientRequestId",
+            "kind": "String",
+            "optional": true
+          }
+        ],
+        "body": null
+      },
+      "response" : {
+        "headers": [
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String"
+          },
+          {
+            "name": "x-ms-request-id",
+            "logicalName": "RequestId",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19",
+            "optional": true
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date"
+          }
+        ],
+        "body": null
+      }
+    }
+  ]
+}
