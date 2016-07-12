@@ -20,7 +20,8 @@ class NodeGenerator extends Generator {
     val l = new ListBuffer[CodeFile]
 
     l.append(readResource("package.json"))
-    l.append(generateConfig())
+    //TODO: restore
+    //l.append(generateConfig())
 
     l.append(generateProxy(mapping))
 

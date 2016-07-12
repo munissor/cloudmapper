@@ -3,6 +3,9 @@ var xmldom = require('xmldom');
 
 
 function XMLParser(body) {
+    if(Buffer.isBuffer(body))
+        body = body.toString('utf-8');
+
     this.data = new xmldom.DOMParser().parseFromString(body);
 
     // Look if the element has a default namespace

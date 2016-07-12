@@ -237,6 +237,314 @@
         ],
         "body": null
       }
+    },
+
+
+    {
+      "name": "DeleteQueue",
+      "request": {
+        "verb": "DELETE",
+        "url": "{account}.queue.core.windows.net/{name}",
+        "urlReplacements": [
+          {
+            "name": "account",
+            "logicalName": "AccountName",
+            "kind": "String"
+          },
+          {
+            "name": "name",
+            "logicalName": "QueueName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+          {
+            "name": "timeout",
+            "logicalName": "OperationTimeout",
+            "kind": "Number",
+            "optional": true
+          }
+        ],
+        "headers": [
+          {
+            "name": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "x-ms-date",
+            "aliases": ["Date"],
+            "logicalName": "Date",
+            "kind": "Date"
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19"
+          },
+          {
+            "name": "x-ms-client-request-id",
+            "logicalName": "ClientRequestId",
+            "kind": "String",
+            "optional": true
+          }
+        ],
+        "body": null
+      },
+      "response" : {
+        "headers": [
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String"
+          },
+          {
+            "name": "x-ms-request-id",
+            "logicalName": "RequestId",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19",
+            "optional": true
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date"
+          }
+        ],
+        "body": null
+      }
+    },
+
+
+    {
+      "name": "CreateMessage",
+      "request": {
+        "verb": "POST",
+        "url": "{account}.queue.core.windows.net/{name}/messages",
+        "urlReplacements": [
+          {
+            "name": "account",
+            "logicalName": "AccountName",
+            "kind": "String"
+          },
+          {
+            "name": "name",
+            "logicalName": "QueueName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+          {
+            "name": "timeout",
+            "logicalName": "OperationTimeout",
+            "kind": "Number",
+            "optional": true
+          },
+          {
+            "name": "visibilitytimeout",
+            "logicalName": "VisibilityTimeout",
+            "kind": "Number",
+            "optional": true
+          },
+          {
+            "name": "messagettl",
+            "logicalName": "MessageTTL",
+            "kind": "Number",
+            "optional": true
+          }
+        ],
+        "headers": [
+          {
+            "name": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "x-ms-date",
+            "aliases": ["Date"],
+            "logicalName": "Date",
+            "kind": "Date"
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19"
+          },
+          {
+            "name": "x-ms-client-request-id",
+            "logicalName": "ClientRequestId",
+            "kind": "String",
+            "optional": true
+          }
+        ],
+        "body": {
+          "name": "QueueMessage",
+          "kind": "Object",
+          "properties": [
+            {
+              "name": "MessageText",
+              "logicalName": "MessageText",
+              "kind": "String"
+            }
+          ]
+        }
+      },
+      "response" : {
+        "headers": [
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String"
+          },
+          {
+            "name": "x-ms-request-id",
+            "logicalName": "RequestId",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19",
+            "optional": true
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date"
+          }
+        ],
+        "body": null
+      }
+    },
+
+
+    {
+      "name": "GetMessage",
+      "request": {
+        "verb": "GET",
+        "url": "{account}.queue.core.windows.net/{name}/messages",
+        "urlReplacements": [
+          {
+            "name": "account",
+            "logicalName": "AccountName",
+            "kind": "String"
+          },
+          {
+            "name": "name",
+            "logicalName": "QueueName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+          {
+            "name": "timeout",
+            "logicalName": "OperationTimeout",
+            "kind": "Number",
+            "optional": true
+          },
+          {
+            "name": "visibilitytimeout",
+            "logicalName": "VisibilityTimeout",
+            "kind": "Number",
+            "optional": true
+          },
+          {
+            "name": "numofmessages",
+            "logicalName": "NumberOfMessages",
+            "kind": "Number",
+            "optional": true
+          }
+        ],
+        "headers": [
+          {
+            "name": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "x-ms-date",
+            "aliases": ["Date"],
+            "logicalName": "Date",
+            "kind": "Date"
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19"
+          },
+          {
+            "name": "x-ms-client-request-id",
+            "logicalName": "ClientRequestId",
+            "kind": "String",
+            "optional": true
+          }
+        ],
+        "body": null
+      },
+      "response" : {
+        "headers": [
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String"
+          },
+          {
+            "name": "x-ms-request-id",
+            "logicalName": "RequestId",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19",
+            "optional": true
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date"
+          }
+        ],
+        "body": {
+          "name": "QueueMessageList",
+          "kind": "Object",
+          "properties": [
+            {
+              "name": "QueueMessage",
+              "logicalName": "Message",
+              "multiple": true,
+              "kind": "Object",
+              "properties": [
+                {
+                  "name": "MessageId",
+                  "logicalName": "Message.Id",
+                  "kind": "String"
+                },
+                {
+                  "name": "MessageText",
+                  "logicalName": "Message.Text",
+                  "kind": "String"
+                },
+                {
+                  "name": "PopReceipt",
+                  "logicalName": "Message.Receipt",
+                  "kind": "String"
+                }
+              ]
+            }
+          ]
+        }
+      }
     }
   ]
 }

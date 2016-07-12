@@ -108,6 +108,201 @@
       "response": {
         "body": null
       }
+    },
+
+
+    {
+      "name": "DeleteQueue",
+      "request": {
+        "url": "sqs.us-west-2.amazonaws.com/{name}",
+        "verb": "DELETE",
+        "urlReplacements": [
+          {
+            "name": "name",
+            "logicalName": "QueueName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+          {
+            "name": "Action",
+            "logicalName": "Operation",
+            "kind": "String",
+            "value": "DeleteQueue"
+          }
+        ],
+        "headers":[
+          {
+            "name": "Authorization",
+            "logicalName": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date",
+            "format": "iso8601"
+          },
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String",
+            "value": "application/xml"
+          }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": null
+      }
+    },
+
+
+    {
+      "name": "CreateMessage",
+      "request": {
+        "url": "sqs.us-west-2.amazonaws.com/{name}",
+        "verb": "POST",
+        "urlReplacements": [
+          {
+            "name": "name",
+            "logicalName": "QueueName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+          {
+            "name": "Action",
+            "logicalName": "Operation",
+            "kind": "String",
+            "value": "SendMessage"
+          },
+          {
+            "name": "MessageBody",
+            "logicalName": "MessageText",
+            "kind": "String"
+          },
+          {
+            "name": "VisibilityTimeout",
+            "logicalName": "VisibilityTimeout",
+            "kind": "Number"
+          }
+        ],
+        "headers":[
+          {
+            "name": "Authorization",
+            "logicalName": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date",
+            "format": "iso8601"
+          },
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String",
+            "value": "application/xml"
+          }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": null
+      }
+    },
+
+
+    {
+      "name": "GetMessage",
+      "request": {
+        "url": "sqs.us-west-2.amazonaws.com/{name}",
+        "verb": "GET",
+        "urlReplacements": [
+          {
+            "name": "name",
+            "logicalName": "QueueName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+          {
+            "name": "Action",
+            "logicalName": "Operation",
+            "kind": "String",
+            "value": "ReceiveMessage"
+          },
+          {
+            "name": "MaxNumberOfMessages",
+            "logicalName": "NumberOfMessages",
+            "kind": "Number"
+          },
+          {
+            "name": "VisibilityTimeout",
+            "logicalName": "VisibilityTimeout",
+            "kind": "Number"
+          }
+        ],
+        "headers": [
+          {
+            "name": "Authorization",
+            "logicalName": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date",
+            "format": "iso8601"
+          },
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String",
+            "value": "application/xml"
+          }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "name": "ReceiveMessageResponse",
+          "kind": "Object",
+          "properties": [
+            {
+              "name": "ReceiveMessageResult",
+              "kind": "Object",
+              "properties": [
+                {
+                  "name": "Message",
+                  "logicalName": "Message",
+                  "multiple": true,
+                  "kind": "Object",
+                  "properties": [
+                    {
+                      "name": "MessageId",
+                      "logicalName": "Message.Id",
+                      "kind": "String"
+                    },
+                    {
+                      "name": "Body",
+                      "logicalName": "Message.Text",
+                      "kind": "String"
+                    },
+                    {
+                      "name": "ReceiptHandle",
+                      "logicalName": "Message.Receipt",
+                      "kind": "String"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
     }
   ]
 }

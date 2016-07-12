@@ -13,6 +13,8 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, val prop
 
   private val queryString = new StringBuilder()
 
+  private val optionalQuery = new StringBuilder();
+
   protected def getContentType(): String
 
   def writeProperties(remoteUrl: String, parameters: Iterable[MappingParameter]): Unit = {

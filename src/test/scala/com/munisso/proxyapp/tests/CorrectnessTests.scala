@@ -88,4 +88,33 @@ class CorrectnessTests {
     tester.addHeaders("Content-Length", 0.toString)
     tester.execute()
   }
+
+  @Test def testDeleteQueue(): Unit = {
+    val url = "http://riccardonci.queue.core.windows.net/unittestqueue"
+    val proxyUrl = generateProxyUrl(url)
+    val tester = new AzureRequestTester("DELETE", url, proxyUrl)
+    tester.create()
+    tester.addHeaders("Content-Length", 0.toString)
+    tester.execute()
+  }
+
+  private def message = "<QueueMessage><MessageText>test-message</MessageText></QueueMessage>"
+
+  @Test def testCreateMessage(): Unit = {
+    val url = "http://riccardonci.queue.core.windows.net/unittestqueue/messages"
+    val proxyUrl = generateProxyUrl(url)
+    val tester = new AzureRequestTester("POST", url, proxyUrl)
+    tester.create()
+    tester.addHeaders("Content-Type", "application/xml")
+    tester.execute(Some(message))
+  }
+
+  @Test def testGetMessage(): Unit = {
+    val url = "http://riccardonci.queue.core.windows.net/unittestqueue/messages"
+    val proxyUrl = generateProxyUrl(url)
+    val tester = new AzureRequestTester("GET", url, proxyUrl)
+    tester.create()
+    tester.addHeaders("Content-Length", 0.toString)
+    tester.execute()
+  }
 }
