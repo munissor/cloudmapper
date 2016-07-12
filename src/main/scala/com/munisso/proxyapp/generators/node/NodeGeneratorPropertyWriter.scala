@@ -1,19 +1,19 @@
 package com.munisso.proxyapp.generators.node
 
 import scala.collection.JavaConverters._
-
 import com.munisso.proxyapp.generators.PropertyNames
 import com.munisso.proxyapp.models._
 import com.munisso.proxyapp.util.IndentedPrintWriter
+
+import scala.collection.mutable.ListBuffer
 
 /**
   * Created by rmunisso on 12/06/2016.
   */
 abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, val propertyNames: PropertyNames) {
 
-  private val queryString = new StringBuilder()
+  private val queryString = ListBuffer[(String, String, Boolean)]()
 
-  private val optionalQuery = new StringBuilder();
 
   protected def getContentType(): String
 
@@ -40,7 +40,20 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, val prop
     writeProperties(parameters, null, null, null)
 
     if(queryString.nonEmpty ){
-      writer.printLn("urlString = urlString + '?'%s;", queryString.toString)
+      writer.printLn("var qs = [];")
+
+      queryString.filter( !_._3 ).foreach( x => writer.printLn("qs.push('%s=' + encodeURIComponent(%s)", x._1, x._2))
+      queryString.filter( _._3).foreach( x => {
+        writer.printLn("if(%s)", x._2)
+        writer.increaseIndent()
+        writer.printLn("qs.push('%s=' + encodeURIComponent(%s)", x._1, x._2)
+        writer.decreaseIndent()
+      })
+
+      writer.printLn("if (qs.length>0)")
+      writer.increaseIndent()
+      writer.printLn("urlString = urlString + '?' + qs.join('&');")
+      writer.decreaseIndent()
     }
 
     bodyArg match {
@@ -95,10 +108,13 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, val prop
         writer.printLn(String.format("%s = %s.replace('{%s}', %s);", propertyNames.requestUrl, propertyNames.requestUrl, parameter.name, this.formatValue(parameter)))
       }
       case Locations.LOCATION_QUERY => {
-        if(queryString.length > 0){
-          queryString.append("+ '&'")
-        }
-        queryString.append(String.format("+ '%s=' + %s", parameter.name, formatValue(parameter)))
+        queryString.append((parameter.name, formatValue(parameter), parameter.optional))
+
+//        if(queryString.length > 0){
+//          queryString.append("+ '&'")
+//        }
+//        //TODO: encodeURIComponent
+//        queryString.append(String.format("+ '%s=' + %s", parameter.name, formatValue(parameter)))
       }
       case Locations.LOCATION_HEADER => {
         writer.printLn(String.format("%s['%s'] = %s;", propertyNames.requestHeaders, parameter.name, formatValue(parameter)))

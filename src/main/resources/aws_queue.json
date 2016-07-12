@@ -185,7 +185,8 @@
           {
             "name": "VisibilityTimeout",
             "logicalName": "VisibilityTimeout",
-            "kind": "Number"
+            "kind": "Number",
+            "optional": true
           }
         ],
         "headers":[
@@ -237,12 +238,14 @@
           {
             "name": "MaxNumberOfMessages",
             "logicalName": "NumberOfMessages",
-            "kind": "Number"
+            "kind": "Number",
+            "optional": true
           },
           {
             "name": "VisibilityTimeout",
             "logicalName": "VisibilityTimeout",
-            "kind": "Number"
+            "kind": "Number",
+            "optional": true
           }
         ],
         "headers": [
