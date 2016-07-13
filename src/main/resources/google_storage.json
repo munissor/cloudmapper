@@ -20,22 +20,15 @@
             "kind": "Signature"
           },
           {
-            "name": "x-ms-date",
-            "aliases": ["Date"],
+            "name": "Date",
             "logicalName": "Date",
             "kind": "Date"
           },
           {
-            "name": "x-ms-version",
-            "logicalName": "ApiVersion",
+            "name": "x-goog-project-id",
+            "logicalName": "ProjectId",
             "kind": "String",
-            "value": "2009-09-19"
-          },
-          {
-            "name": "x-ms-client-request-id",
-            "logicalName": "ClientRequestId",
-            "kind": "String",
-            "optional": true
+            "fallback": "Config"
           },
           {
             "name": "Content-Length",
@@ -139,7 +132,7 @@
             "name": "x-goog-project-id",
             "logicalName": "ProjectId",
             "kind": "String",
-            "value": "muxtest46"
+            "fallback": "Config"
           }
         ],
         "body": null

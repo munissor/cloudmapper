@@ -104,7 +104,8 @@
             "logicalName": "ApiVersion",
             "kind": "String",
             "value": "2009-09-19",
-            "optional": true
+            "optional": true,
+            "fallback": "Mirror"
           },
           {
             "name": "Date",
@@ -280,7 +281,7 @@
           },
           {
             "name": "x-ms-version",
-            "logicalName": "ServiceVersion",
+            "logicalName": "ApiVersion",
             "kind": "String",
             "optional": true
           },

@@ -62,16 +62,6 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, val prop
     }
   }
 
-//  private def buildRequestUrl(route: Route): String = {
-//    val replacements = route.buildRequest.asScala
-//      .filter( x => x.location == Locations.LOCATION_URL)
-//      .map( x => String.format(".replace('{%s}', %s)", x.name, this.formatValue(x)))
-//      .mkString("")
-//
-//    // TODO: don't hardcode protocol
-//    String.format("'https://%s'%s", route.remoteUrl, replacements)
-//  }
-
   private def writeProperties(parameters: Iterable[MappingParameter], parentParameter: MappingParameter, parentIterationVariable: String, parentVariable: String): Unit = {
     parameters.foreach( x => {
 
@@ -109,12 +99,6 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, val prop
       }
       case Locations.LOCATION_QUERY => {
         queryString.append((parameter.name, formatValue(parameter), parameter.optional))
-
-//        if(queryString.length > 0){
-//          queryString.append("+ '&'")
-//        }
-//        //TODO: encodeURIComponent
-//        queryString.append(String.format("+ '%s=' + %s", parameter.name, formatValue(parameter)))
       }
       case Locations.LOCATION_HEADER => {
         writer.printLn(String.format("%s['%s'] = %s;", propertyNames.requestHeaders, parameter.name, formatValue(parameter)))
@@ -124,6 +108,10 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, val prop
         val parent = if(parentVariable != null) ", " + parentVariable else ""
         writer.printLn(String.format("%s.writeValue('%s',%s%s);", propertyNames.requestWriter, normalizeParameter(parameter.name), value, parent))
       }
+      case _ =>
+        if (parameter.fallback == FallbackOption.Mirror) {
+          writer.printLn("%s.%s = srcReqData.%s", propertyNames.variable, parameter.logicalName, parameter.logicalName)
+        }
     }
   }
 

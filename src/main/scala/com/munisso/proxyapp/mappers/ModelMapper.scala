@@ -71,7 +71,7 @@ class ModelMapper {
           // BUILD DESTINATION REQUEST
           if (p.isEmpty) {
 
-            if (arg.value != null) {
+            if (arg.value != null || arg.fallback != null) {
               val dup = MappingParameter.duplicate(arg)
               dup.location = null
               route.parseRequest.add(dup)
@@ -109,8 +109,18 @@ class ModelMapper {
 
           // BUILD DESTINATION RESPONSE
           if (p.isEmpty) {
-
-            if (arg.value != null) {
+            val fallback = sourceReqArgs.find( x => x.logicalName == arg.logicalName && arg.fallback == FallbackOption.Mirror)
+            if( fallback.isDefined ) {
+              val f = fallback.get
+              if(!route.parseRequest.contains(f)){
+                route.parseRequest.add(f)
+              }
+              val dup = MappingParameter.duplicate(arg)
+              dup.location = null
+              route.buildResponse.add(dup)
+              route.buildResponse.add(arg)
+            }
+            else if (arg.value != null) {
               route.buildResponse.add(arg)
             }
             else if (!arg.optional) {

@@ -70,9 +70,13 @@ abstract class NodeGeneratorPropertyReader(writer: IndentedPrintWriter, protecte
       case Locations.LOCATION_URL => formatExtractParameter(propertyNames.requestVariable + ".params.%s", parameter)
       case Locations.LOCATION_QUERY => formatExtractParameter(propertyNames.requestVariable + ".query.%s", parameter)
       case Locations.LOCATION_HEADER => formatExtractParameter(propertyNames.requestVariable + ".header('%s')", parameter)
-      case Locations.LOCATION_BODY => formatExtractParameter(propertyNames.requestParser + ".getValue('%s'" + parent + ")", parameter, n => if(n.startsWith(".")) n.substring(1) else n)
-      case _ => String.format("'%s'", parameter.value)
-    }
+      case Locations.LOCATION_BODY => formatExtractParameter(propertyNames.requestParser + ".getValue('%s'" + parent + ")", parameter, n => if (n.startsWith(".")) n.substring(1) else n)
+      case _ =>
+        if (parameter.fallback == FallbackOption.Config)
+          String.format("config.%s", parameter.logicalName)
+        else
+          String.format("'%s'", parameter.value)
+      }
 
     writer.printLn("%s = %s;", variableName, read)
   }
@@ -135,8 +139,10 @@ abstract class NodeGeneratorPropertyReader(writer: IndentedPrintWriter, protecte
 
   private def getNames(parameter: MappingParameter): List[String] = parameter.name :: (if (parameter.aliases != null) parameter.aliases.toList else Nil)
 
-  private def formatExtractParameter(format: String, parameter: MappingParameter, nameTransform: (String) => String = (x) => x): String =
-    getNames(parameter).map( n => String.format(format, nameTransform(n))).mkString(" || ")
+  private def formatExtractParameter(format: String, parameter: MappingParameter, nameTransform: (String) => String = (x) => x): String = {
+    getNames(parameter).map(n => String.format(format, nameTransform(n))).mkString(" || ")
+  }
+
 }
 
 class NodeGeneratorRestifyPropertyReader(writer: IndentedPrintWriter)

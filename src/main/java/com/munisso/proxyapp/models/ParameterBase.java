@@ -21,4 +21,6 @@ public abstract class ParameterBase
 
     public boolean multiple;
 
+    public FallbackOption fallback;
+
 }

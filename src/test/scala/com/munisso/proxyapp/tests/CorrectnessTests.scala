@@ -29,7 +29,7 @@ class CorrectnessTests {
 
   @Test def testCreateContainer(): Unit = {
 
-    val url = "http://riccardonci.blob.core.windows.net/unittestcontainer3?restype=container"
+    val url = "http://riccardonci.blob.core.windows.net/testapicontainer?restype=container"
     val proxyUrl = generateProxyUrl(url)
     val tester = new AzureRequestTester("PUT", url, proxyUrl)
     tester.create()

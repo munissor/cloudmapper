@@ -24,6 +24,7 @@ public class MappingParameter extends Parameter {
         m.optional = source.optional;
         m.format = source.format;
         m.multiple = source.multiple;
+        m.fallback = source.fallback;
 
         return m;
     }
