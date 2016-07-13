@@ -42,11 +42,11 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, val prop
     if(queryString.nonEmpty ){
       writer.printLn("var qs = [];")
 
-      queryString.filter( !_._3 ).foreach( x => writer.printLn("qs.push('%s=' + encodeURIComponent(%s)", x._1, x._2))
+      queryString.filter( !_._3 ).foreach( x => writer.printLn("qs.push('%s=' + encodeURIComponent(%s));", x._1, x._2))
       queryString.filter( _._3).foreach( x => {
         writer.printLn("if(%s)", x._2)
         writer.increaseIndent()
-        writer.printLn("qs.push('%s=' + encodeURIComponent(%s)", x._1, x._2)
+        writer.printLn("qs.push('%s=' + encodeURIComponent(%s));", x._1, x._2)
         writer.decreaseIndent()
       })
 

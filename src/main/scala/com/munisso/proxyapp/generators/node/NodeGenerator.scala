@@ -102,9 +102,9 @@ class NodeGenerator extends Generator {
     indentedPrintWriter.printLn("var options = {method: '%s', url: urlString, body: %s, headers: rHeaders};", route.remoteVerb, reqWriter.propertyNames.body )
     indentedPrintWriter.printLn()
 
-    indentedPrintWriter.printLn("signature.buildSignature('%s', options);", mapping.signature)
-    indentedPrintWriter.printLn()
-    indentedPrintWriter.printLn("request(options, function(error, response, body){")
+    indentedPrintWriter.printLn("signature.buildSignature('%s', options, function(r) {", mapping.signature)
+    indentedPrintWriter.increaseIndent()
+    indentedPrintWriter.printLn("request(r, function(error, response, body){")
     indentedPrintWriter.increaseIndent()
 
 
@@ -125,6 +125,8 @@ class NodeGenerator extends Generator {
     indentedPrintWriter.printLn("res.end();")
     indentedPrintWriter.printLn("return next();")
 
+    indentedPrintWriter.decreaseIndent()
+    indentedPrintWriter.printLn("});")
     indentedPrintWriter.decreaseIndent()
     indentedPrintWriter.printLn("});")
     indentedPrintWriter.printLn()

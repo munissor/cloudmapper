@@ -13,15 +13,24 @@ import com.munisso.proxyapp.models.Model
 object Program {
 
    def main(args: Array[String]): Unit = {
+     // AZURE => AWS Storage
 //     createProxy(
 //       "./src/main/resources/azure_storage.json",
 //       "./src/main/resources/aws_storage.json",
 //       "./output.mapper",
 //       "nodeproxy")
 
+     // AZURE => AWS Queue
+//     createProxy(
+//       "./src/main/resources/azure_queue.json",
+//       "./src/main/resources/aws_queue.json",
+//       "./output.mapper",
+//       "nodeproxy")
+
+     // AZURE => GOOGLE Storage
      createProxy(
-       "./src/main/resources/azure_queue.json",
-       "./src/main/resources/aws_queue.json",
+       "./src/main/resources/azure_storage.json",
+       "./src/main/resources/google_storage.json",
        "./output.mapper",
        "nodeproxy")
    }

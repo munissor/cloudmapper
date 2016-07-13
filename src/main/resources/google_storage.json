@@ -1,0 +1,182 @@
+{
+  "provider": "Google",
+  "service": "Storage",
+  "serviceType": "Blob",
+  "signature": "google-service-token",
+  "operations": [
+    {
+      "name": "ListContainers",
+      "request": {
+        "verb": "GET",
+        "url": "storage.googleapis.com/",
+        "urlReplacements": [
+        ],
+        "queryString": [
+        ],
+        "headers": [
+          {
+            "name": "Authorization",
+            "logicalName": "x",
+            "kind": "Signature"
+          },
+          {
+            "name": "x-ms-date",
+            "aliases": ["Date"],
+            "logicalName": "Date",
+            "kind": "Date"
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19"
+          },
+          {
+            "name": "x-ms-client-request-id",
+            "logicalName": "ClientRequestId",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "Content-Length",
+            "logicalName": "ContentLength",
+            "kind": "Number",
+            "value": 0
+          }
+        ],
+        "body": null
+      },
+      "response" : {
+        "headers": [
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date"
+          }
+        ],
+        "body": {
+          "name": "ListAllMyBucketsResult",
+          "kind": "Object",
+          "properties": [
+            {
+              "name": "Owner",
+              "kind": "Object",
+              "properties": [
+                {
+                  "name": "ID",
+                  "logicalName": "OwnerId",
+                  "kind": "String"
+                },
+                {
+                  "name": "DisplayName",
+                  "logicalName": "OwnerName",
+                  "kind": "String"
+                }
+              ]
+            },
+            {
+              "name": "Buckets",
+              "kind": "Object",
+              "properties": [
+                {
+                  "name": "Bucket",
+                  "logicalName": "Container",
+                  "kind": "Object",
+                  "multiple": true,
+                  "properties": [
+                    {
+                      "name": "Name",
+                      "logicalName": "Container.Name",
+                      "kind": "String"
+                    },
+                    {
+                      "name": "CreationDate",
+                      "logicalName": "Container.CreationDate",
+                      "kind": "Date"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+
+    {
+      "name": "PutContainer",
+      "request": {
+        "verb": "PUT",
+        "url": "storage.googleapis.com/{name}",
+        "urlReplacements": [
+          {
+            "name": "name",
+            "logicalName": "ObjectName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+
+        ],
+        "headers":[
+          {
+            "name": "Authorization",
+            "logicalName": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date",
+            "format": "iso8601"
+          },
+          {
+            "name": "x-goog-project-id",
+            "logicalName": "ProjectId",
+            "kind": "String",
+            "value": "muxtest46"
+          }
+        ],
+        "body": null
+      },
+      "response": {
+        "headers": [
+        ],
+        "body": null
+      }
+    },
+
+
+    {
+      "name": "DeleteContainer",
+      "request": {
+        "verb": "DELETE",
+        "url": "storage.googleapis.com/{name}",
+        "urlReplacements": [
+          {
+            "name": "name",
+            "logicalName": "ObjectName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+        ],
+        "headers":[
+
+        ],
+        "body": null
+      },
+      "response": {
+        "headers": [
+        ],
+        "body": null
+      }
+    }
+
+  ]
+}

@@ -29,7 +29,7 @@ class CorrectnessTests {
 
   @Test def testCreateContainer(): Unit = {
 
-    val url = "http://riccardonci.blob.core.windows.net/unittestcontainer?restype=container"
+    val url = "http://riccardonci.blob.core.windows.net/unittestcontainer3?restype=container"
     val proxyUrl = generateProxyUrl(url)
     val tester = new AzureRequestTester("PUT", url, proxyUrl)
     tester.create()
@@ -113,6 +113,15 @@ class CorrectnessTests {
     val url = "http://riccardonci.queue.core.windows.net/unittestqueue/messages"
     val proxyUrl = generateProxyUrl(url)
     val tester = new AzureRequestTester("GET", url, proxyUrl)
+    tester.create()
+    tester.addHeaders("Content-Length", 0.toString)
+    tester.execute()
+  }
+
+  @Test def testPurgeMessages(): Unit = {
+    val url = "http://riccardonci.queue.core.windows.net/unittestqueue/messages"
+    val proxyUrl = generateProxyUrl(url)
+    val tester = new AzureRequestTester("DELETE", url, proxyUrl)
     tester.create()
     tester.addHeaders("Content-Length", 0.toString)
     tester.execute()

@@ -306,6 +306,48 @@
           ]
         }
       }
+    },
+
+
+
+    {
+      "name": "PurgeMessages",
+      "request": {
+        "url": "sqs.us-west-2.amazonaws.com/{name}",
+        "verb": "DELETE",
+        "urlReplacements": [
+          {
+            "name": "name",
+            "logicalName": "QueueName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+          {
+            "name": "Action",
+            "logicalName": "Operation",
+            "kind": "String",
+            "value": "PurgeQueue"
+          }
+        ],
+        "headers":[
+          {
+            "name": "Authorization",
+            "logicalName": "Authorization",
+            "kind": "Signature"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date",
+            "format": "iso8601"
+          }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": null
+      }
     }
   ]
 }

@@ -1,26 +1,29 @@
 'use strict';
 var awsSigner = require('aws4');
+var request = require('request');
 var config = require('config');
 var url = require('url');
+var jwt = require('jwt-simple');
 
 module.exports = {
     buildSignature: _buildSignature
 };
 
-function _buildSignature(type, request) {
+function _buildSignature(type, requestData, callback) {
     if( type === 'aws-v4')
-        _awsV4SignRequest(request);
+        _awsV4SignRequest(requestData, callback);
+    else if( type === 'google-service-token')
+        _googleServiceToken(requestData, callback);
     else if (type == 'azure')
-        _azureSignRequest(request);
+        _azureSignRequest(requestData, callback);
     else
         throw new Error('Unsupported signature algorithm');
 }
 
-
-function  _awsV4SignRequest(request) {
+function  _awsV4SignRequest(requestData, callback) {
     // request: { path | body, [host], [method], [headers], [service], [region] }
     // credentials: { accessKeyId, secretAccessKey, [sessionToken] }
-    var parsedUrl = url.parse(request.url);
+    var parsedUrl = url.parse(requestData.url);
     var idx = parsedUrl.host.indexOf('.');
     var service = parsedUrl.host.substring(0, idx);
 
@@ -29,10 +32,10 @@ function  _awsV4SignRequest(request) {
 
     var r = {
         path: parsedUrl.path,
-        body: request.body,
+        body: requestData.body,
         host: parsedUrl.host,
-        method: request.method,
-        headers: request.headers,
+        method: requestData.method,
+        headers: requestData.headers,
         service: service,
         signQuery: signQuery
     };
@@ -45,17 +48,60 @@ function  _awsV4SignRequest(request) {
 
     var signed = awsSigner.sign(r, credentials);
     if(signQuery) {
-        request.url =
+        requestData.url =
             parsedUrl.protocol +
             (parsedUrl.slashes ? '//' : '') +
             signed.host +
             signed.path;
     }
+
+    callback(requestData);
+}
+
+var google_token = null;
+var google_expire = 0;
+
+function  _googleServiceToken(requestData, callback) {
+    var date = new Date().getTime() / 1000;
+    if( date > google_expire ){
+        var exp = (new Date().getTime() + 60 * 60 * 1000)/1000;
+
+        var payload = {
+            "iss":config.account,
+            "scope":config.scope,
+            "aud":"https://www.googleapis.com/oauth2/v4/token",
+            "iat": date,
+            "exp": exp
+        };
+
+        var token = jwt.encode(payload, config.privateKey, 'RS256');
+
+        var options = {
+            method: 'POST',
+            url: "https://www.googleapis.com/oauth2/v4/token",
+            form: {
+                grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+                assertion: token
+            },
+            headers: []
+        };
+
+        request(options, function(error, response, body){
+            google_token = JSON.parse(response.body).access_token;
+            google_expire = exp - 10; // keep 10 seconds between the token  expires and the last request is made
+            requestData.headers['Authorization'] = "Bearer " + google_token;
+            callback(requestData);
+        });
+    }
+    else {
+        requestData.headers['Authorization'] = "Bearer " + google_token;
+        callback(requestData);
+    }
 }
 
 
-function _azureSignRequest(request) {
-    return request;
+function _azureSignRequest(requestData, callback) {
+    callback(requestData);
 }
 
 /*
