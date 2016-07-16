@@ -75,12 +75,35 @@ abstract class RequestTester(val method: String, val providerUri: String, val pr
   }
 
   def testHeader(name: String): TestResult = {
-    return new TestResult(name, providerResponse.getFirstHeader(name).getValue, proxyResponse.getFirstHeader(name).getValue)
+    val providerHeader = providerResponse.getFirstHeader(name)
+    val proxyHeader = proxyResponse.getFirstHeader(name)
+
+    if(providerHeader != null && proxyHeader != null)
+      new TestResult(name, providerHeader.getValue, proxyHeader.getValue)
+    else
+      new TestResult(name, providerHeader.getValue, null, "Header missing from the proxy response")
   }
 
   def testResponseCode: TestResult = {
-      new TestResult("$status", providerResponse.getStatusLine.getStatusCode.toString, proxyResponse.getStatusLine.getStatusCode.toString)
-   }
+    new TestResult("$status", providerResponse.getStatusLine.getStatusCode.toString, proxyResponse.getStatusLine.getStatusCode.toString)
+  }
+
+  def compare(): List[TestResult] = {
+
+    compareResponse() ::: compareHeaders() ::: compareBody()
+  }
+
+  def compareResponse(): List[TestResult] = {
+    List(testResponseCode)
+  }
+
+  def compareHeaders(): List[TestResult] = {
+    providerResponse.getAllHeaders.map( h => testHeader(h.getName) ).toList
+  }
+
+  def compareBody(): List[TestResult] = {
+    List()
+  }
 
 
   private def buildRequest(body: Option[String], request: RequestBuilder): HttpUriRequest = {

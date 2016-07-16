@@ -10,7 +10,8 @@ lazy val root = (project in file(".")).
 
       "org.apache.httpcomponents" % "httpclient" % "4.5.2",
       "com.amazonaws" % "aws-java-sdk-s3" % "1.11.10" % "test",
-      "junit" % "junit" % "4.12" % "test"
+      "junit" % "junit" % "4.12" % "test",
+      "xmlunit" % "xmlunit" % "1.6" % "test"
     )
   )
 
