@@ -61,6 +61,8 @@ abstract class NodeGeneratorPropertyReader(writer: IndentedPrintWriter, protecte
     }
   }
 
+  protected def getHeaderFormat(): String
+
   private def extractScalarProperty(parameter: MappingParameter, parentParameter: MappingParameter, parentIterationVariable: String, parentVariable: String = null) = {
 
     val variableName = if(parentVariable != null ) parentVariable + "." + propertyNames.nestedVariable(parameter, parentParameter) else propertyNames.property(parameter)
@@ -69,7 +71,7 @@ abstract class NodeGeneratorPropertyReader(writer: IndentedPrintWriter, protecte
     val read = parameter.location match {
       case Locations.LOCATION_URL => formatExtractParameter(propertyNames.requestVariable + ".params.%s", parameter)
       case Locations.LOCATION_QUERY => formatExtractParameter(propertyNames.requestVariable + ".query.%s", parameter)
-      case Locations.LOCATION_HEADER => formatExtractParameter(propertyNames.requestVariable + ".header('%s')", parameter)
+      case Locations.LOCATION_HEADER => formatExtractParameter(getHeaderFormat, parameter, n => n.toLowerCase)
       case Locations.LOCATION_BODY => formatExtractParameter(propertyNames.requestParser + ".getValue('%s'" + parent + ")", parameter, n => if (n.startsWith(".")) n.substring(1) else n)
       case _ =>
         if (parameter.fallback == FallbackOption.Config)
@@ -148,7 +150,9 @@ abstract class NodeGeneratorPropertyReader(writer: IndentedPrintWriter, protecte
 class NodeGeneratorRestifyPropertyReader(writer: IndentedPrintWriter)
   extends NodeGeneratorPropertyReader(writer, new PropertyNames("srcReq")) {
 
-  override protected def getContentType(): String = "req.headers['content-type']"
+  override protected def getContentType(): String = propertyNames.requestVariable + ".headers['content-type']"
+
+  override protected def getHeaderFormat(): String = propertyNames.requestVariable + ".header('%s')"
 
   override protected def getBody(): String = "req.body"
 }
@@ -157,6 +161,8 @@ class NodeGeneratorRequestPropertyReader(writer: IndentedPrintWriter)
   extends NodeGeneratorPropertyReader(writer, new PropertyNames("dstRes")) {
 
   override protected def getContentType(): String = "response.headers['content-type']"
+
+  override protected def getHeaderFormat(): String = "response.headers['%s']"
 
   override protected def getBody(): String = "body"
 }

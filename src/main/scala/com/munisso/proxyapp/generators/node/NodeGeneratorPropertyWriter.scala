@@ -34,8 +34,8 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, val prop
     // TODO: don't hardcode protocol
     if(remoteUrl != null && remoteUrl.nonEmpty) {
       writer.printLn("var urlString = 'https://%s';", remoteUrl)
-      writer.printLn("var rHeaders = {};")
     }
+    writer.printLn("var %s = {};", propertyNames.requestHeaders)
 
     writeProperties(parameters, null, null, null)
 
@@ -110,7 +110,7 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, val prop
       }
       case _ =>
         if (parameter.fallback == FallbackOption.Mirror) {
-          writer.printLn("%s.%s = srcReqData.%s", propertyNames.variable, parameter.logicalName, parameter.logicalName)
+          writer.printLn("%s.%s = srcReqData.%s;", propertyNames.variable, parameter.logicalName, parameter.logicalName)
         }
     }
   }

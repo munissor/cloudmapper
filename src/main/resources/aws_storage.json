@@ -33,6 +33,9 @@
         "body": null
       },
       "response": {
+        "headers": [
+
+        ],
         "body": {
           "name": "ListAllMyBucketsResult",
           "kind": "Object",
@@ -125,8 +128,34 @@
       "response": {
         "headers": [
           {
-            "name": "ETag",
-            "logicalName": "ETag",
+            "name": "x-amz-id-2",
+            "logicalName": "RequestId2",
+            "kind": "String"
+          },
+          {
+            "name": "x-amz-request-id",
+            "logicalName": "RequestId",
+            "kind": "String"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date",
+            "format": "iso8601"
+          },
+          {
+            "name": "Location",
+            "logicalName": "ResourceLocation",
+            "kind": "String"
+          },
+          {
+            "name": "Content-Length",
+            "logicalName": "ContentLength",
+            "kind": "Number"
+          },
+          {
+            "name": "Server",
+            "logicalName": "Server",
             "kind": "String"
           }
         ],
@@ -166,14 +195,29 @@
       "response": {
         "headers": [
           {
+            "name": "x-amz-id-2",
+            "logicalName": "RequestId2",
+            "kind": "String"
+          },
+          {
+            "name": "x-amz-request-id",
+            "logicalName": "RequestId",
+            "kind": "String"
+          },
+          {
             "name": "Date",
             "logicalName": "Date",
             "kind": "Date",
             "format": "iso8601"
           },
           {
-            "name": "ETag",
-            "logicalName": "ETag",
+            "name": "Content-Length",
+            "logicalName": "ContentLength",
+            "kind": "Number"
+          },
+          {
+            "name": "Server",
+            "logicalName": "Server",
             "kind": "String"
           }
         ],
@@ -258,6 +302,37 @@
       },
       "response": {
         "headers": [
+          {
+            "name": "x-amz-id-2",
+            "logicalName": "RequestId2",
+            "kind": "String"
+          },
+          {
+            "name": "x-amz-request-id",
+            "logicalName": "RequestId",
+            "kind": "String"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date",
+            "format": "iso8601"
+          },
+          {
+            "name": "Content-Length",
+            "logicalName": "ContentLength",
+            "kind": "Number"
+          },
+          {
+            "name": "Server",
+            "logicalName": "Server",
+            "kind": "String"
+          },
+          {
+            "name": "ETag",
+            "logicalName": "Etag",
+            "kind": "String"
+          }
         ],
         "body": null
       }
@@ -344,6 +419,37 @@
       },
       "response": {
         "headers": [
+          {
+            "name": "x-amz-id-2",
+            "logicalName": "RequestId2",
+            "kind": "String"
+          },
+          {
+            "name": "x-amz-request-id",
+            "logicalName": "RequestId",
+            "kind": "String"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date",
+            "format": "iso8601"
+          },
+          {
+            "name": "ETag",
+            "logicalName": "ETag",
+            "kind": "String"
+          },
+          {
+            "name": "Content-Length",
+            "logicalName": "ContentLength",
+            "kind": "Number"
+          },
+          {
+            "name": "Server",
+            "logicalName": "Server",
+            "kind": "String"
+          }
         ],
         "body": null
       }

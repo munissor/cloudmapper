@@ -2,11 +2,7 @@
   "provider": "Azure",
   "service": "Storage",
   "serviceType": "Blob",
-  "configurations": [
-    { "key": "account", "value": "USER PROVIDED" },
-    { "key": "authorizationScheme", "value": "SharedKey" },
-    { "key": "x-ms-version", "value": "2015-04-05" }
-  ],
+  "configurations": [],
   "signature": "azure",
   "operations": [
     {
@@ -283,7 +279,7 @@
             "name": "x-ms-version",
             "logicalName": "ApiVersion",
             "kind": "String",
-            "optional": true
+            "fallback": "Mirror"
           },
           {
             "name": "Date",
@@ -331,6 +327,30 @@
       },
       "response": {
         "headers": [
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String"
+          },
+          {
+            "name": "x-ms-request-id",
+            "logicalName": "RequestId",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19",
+            "optional": true,
+            "fallback": "Mirror"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date"
+          }
         ],
         "body": null
       }
@@ -436,6 +456,30 @@
       },
       "response": {
         "headers": [
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String"
+          },
+          {
+            "name": "x-ms-request-id",
+            "logicalName": "RequestId",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19",
+            "optional": true,
+            "fallback": "Mirror"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date"
+          }
         ],
         "body": null
       }
@@ -510,6 +554,42 @@
       },
       "response": {
         "headers": [
+          {
+            "name": "Content-MD5",
+            "logicalName": "ContentMD5",
+            "kind": "String"
+          },
+          {
+            "name": "Last-Modified",
+            "logicalName": "LastModified",
+            "kind": "Date"
+          },
+          {
+            "name": "ETag",
+            "logicalName": "ETag",
+            "kind": "String"
+          },
+          {
+            "name": "Server",
+            "logicalName": "Server",
+            "kind": "String"
+          },
+          {
+            "name": "x-ms-request-id",
+            "logicalName": "RequestId",
+            "kind": "String"
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "fallback": "Mirror"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "String"
+          }
         ],
         "body": null
       }
@@ -580,6 +660,30 @@
       },
       "response": {
         "headers": [
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String"
+          },
+          {
+            "name": "x-ms-request-id",
+            "logicalName": "RequestId",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19",
+            "optional": true,
+            "fallback": "Mirror"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date"
+          }
         ],
         "body": {
           "name": "",
@@ -660,6 +764,30 @@
       },
       "response": {
         "headers": [
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String"
+          },
+          {
+            "name": "x-ms-request-id",
+            "logicalName": "RequestId",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "x-ms-version",
+            "logicalName": "ApiVersion",
+            "kind": "String",
+            "value": "2009-09-19",
+            "optional": true,
+            "fallback": "Mirror"
+          },
+          {
+            "name": "Date",
+            "logicalName": "Date",
+            "kind": "Date"
+          }
         ],
         "body": null
       }

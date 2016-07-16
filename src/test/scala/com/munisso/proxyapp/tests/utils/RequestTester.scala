@@ -1,12 +1,17 @@
 package com.munisso.proxyapp.tests.utils
 
-import org.apache.http.{HttpHost, HttpRequest, HttpResponse}
+import org.apache.commons.io.IOUtils
+import org.apache.http.{HttpEntity, HttpHost, HttpRequest, HttpResponse}
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.{HttpEntityEnclosingRequestBase, HttpPut, HttpUriRequest, RequestBuilder}
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner
+import org.apache.http.protocol.HTTP
 import org.apache.http.util.EntityUtils
+import org.xmlunit.builder.DiffBuilder
+import org.apache.commons.io.input.BOMInputStream
+import org.xmlunit.diff.{DefaultNodeMatcher, ElementSelectors}
 
 /**
   * Created by riccardo on 26/06/16.
@@ -45,7 +50,7 @@ abstract class RequestTester(val method: String, val providerUri: String, val pr
     providerRequest = RequestBuilder.create(method).setUri(providerUri)
     customizeRequest(providerRequest)
 
-    proxyRequest =  RequestBuilder.create(method).setUri(proxyUri)
+    proxyRequest = RequestBuilder.create(method).setUri(proxyUri)
     customizeRequest(proxyRequest)
   }
 
@@ -53,15 +58,15 @@ abstract class RequestTester(val method: String, val providerUri: String, val pr
     val providerReq = buildRequest(body, providerRequest)
     providerResponse = httpClient.execute(providerReq)
     val e = providerResponse.getEntity
-    if( e != null )
-      providerResponseEntity = EntityUtils.toString(e, "utf-8")
+    if (e != null)
+      providerResponseEntity = getEncoding(e).trim
     EntityUtils.consume(e)
 
     val proxyReq = buildRequest(body, proxyRequest)
     proxyResponse = httpClient.execute(proxyReq)
     val pe = proxyResponse.getEntity
-    if( pe != null )
-      proxyResponseEntity = EntityUtils.toString(pe, "utf-8")
+    if (pe != null)
+      proxyResponseEntity = getEncoding(pe).trim
     EntityUtils.consume(pe)
   }
 
@@ -78,7 +83,7 @@ abstract class RequestTester(val method: String, val providerUri: String, val pr
     val providerHeader = providerResponse.getFirstHeader(name)
     val proxyHeader = proxyResponse.getFirstHeader(name)
 
-    if(providerHeader != null && proxyHeader != null)
+    if (providerHeader != null && proxyHeader != null)
       new TestResult(name, providerHeader.getValue, proxyHeader.getValue)
     else
       new TestResult(name, providerHeader.getValue, null, "Header missing from the proxy response")
@@ -86,6 +91,17 @@ abstract class RequestTester(val method: String, val providerUri: String, val pr
 
   def testResponseCode: TestResult = {
     new TestResult("$status", providerResponse.getStatusLine.getStatusCode.toString, proxyResponse.getStatusLine.getStatusCode.toString)
+  }
+
+  private def getEncoding(entity: HttpEntity): String = {
+    val instream = entity.getContent()
+    val bis = new BOMInputStream(instream)
+    val encoding = if (bis.hasBOM())
+      bis.getBOMCharsetName()
+    else
+      "utf-8"
+
+    IOUtils.toString(bis, encoding)
   }
 
   def compare(): List[TestResult] = {
@@ -102,6 +118,11 @@ abstract class RequestTester(val method: String, val providerUri: String, val pr
   }
 
   def compareBody(): List[TestResult] = {
+    val d = DiffBuilder.compare(providerResponseEntity)
+       .withTest(proxyResponseEntity)
+      .ignoreWhitespace()
+      .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText))
+      .build()
     List()
   }
 

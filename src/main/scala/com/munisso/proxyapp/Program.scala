@@ -14,11 +14,11 @@ object Program {
 
    def main(args: Array[String]): Unit = {
      // AZURE => AWS Storage
-//     createProxy(
-//       "./src/main/resources/azure_storage.json",
-//       "./src/main/resources/aws_storage.json",
-//       "./output.mapper",
-//       "nodeproxy")
+     createProxy(
+       "./src/main/resources/azure_storage.json",
+       "./src/main/resources/aws_storage.json",
+       "./output.mapper",
+       "nodeproxy")
 
      // AZURE => AWS Queue
 //     createProxy(
@@ -28,11 +28,11 @@ object Program {
 //       "nodeproxy")
 
      // AZURE => GOOGLE Storage
-     createProxy(
-       "./src/main/resources/azure_storage.json",
-       "./src/main/resources/google_storage.json",
-       "./output.mapper",
-       "nodeproxy")
+//     createProxy(
+//       "./src/main/resources/azure_storage.json",
+//       "./src/main/resources/google_storage.json",
+//       "./output.mapper",
+//       "nodeproxy")
    }
 
    def createProxy(srcData: String, trgData: String, outName: String, proxyName: String): Unit = {

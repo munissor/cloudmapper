@@ -27,7 +27,7 @@ class PropertyNames(prefix: String) {
 
   def requestWriter(): String = prefix + "Writer"
 
-  def requestHeaders(): String = "rHeaders"
+  def requestHeaders(): String = prefix + "Headers"
 
   def requestUrl(): String = "urlString"
 

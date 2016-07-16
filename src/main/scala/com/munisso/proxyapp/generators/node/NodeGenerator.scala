@@ -99,7 +99,7 @@ class NodeGenerator extends Generator {
     var reqWriter = new NodeGeneratorRequestPropertyWriter(indentedPrintWriter)
     reqWriter.writeProperties(route.remoteUrl, route.buildRequest.asScala)
 
-    indentedPrintWriter.printLn("var options = {method: '%s', url: urlString, body: %s, headers: rHeaders};", route.remoteVerb, reqWriter.propertyNames.body )
+    indentedPrintWriter.printLn("var options = {method: '%s', url: urlString, body: %s, headers: %s};", route.remoteVerb, reqWriter.propertyNames.body, reqWriter.propertyNames.requestHeaders )
     indentedPrintWriter.printLn()
 
     indentedPrintWriter.printLn("signature.buildSignature('%s', options, function(r) {", mapping.signature)
@@ -120,7 +120,8 @@ class NodeGenerator extends Generator {
     // TODO: map status ?
     indentedPrintWriter.printLn("var status = response.statusCode;")
 
-    indentedPrintWriter.printLn("res.writeHead(status, {});")
+    // TODO: don't hardcode the headers
+    indentedPrintWriter.printLn("res.writeHead(status, dstResHeaders);")
     indentedPrintWriter.printLn("res.write(%s);", resWriter.propertyNames.body)
     indentedPrintWriter.printLn("res.end();")
     indentedPrintWriter.printLn("return next();")

@@ -7,4 +7,8 @@ class TestResult(val name: String, val expected: String, val actual: String, val
   def compare(): Boolean = {
      expected == actual
   }
+
+  override def toString(): String = {
+    String.format("[%s] Expected: %s, Actual: %s. %s", name, expected, actual, message)
+  }
 }
