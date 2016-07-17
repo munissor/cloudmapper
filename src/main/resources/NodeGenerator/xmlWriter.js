@@ -5,6 +5,8 @@ function XMLWriter(){
     this.data = {};
 
     this.writeValue = function(name, value, parent){
+        if(!value)
+            return;
         this._createNode(parent, name, { '#text':  value });
     };
 

@@ -1,5 +1,8 @@
 package com.munisso.proxyapp.tests.utils
 
+import java.io.{ByteArrayInputStream, InputStream}
+import javax.xml.bind.ValidationEvent
+
 import org.apache.commons.io.IOUtils
 import org.apache.http.{HttpEntity, HttpHost, HttpResponse}
 import org.apache.http.client.HttpClient
@@ -23,11 +26,11 @@ abstract class RequestTester(val method: String, val providerUri: String, val pr
 
   private var providerRequest: RequestBuilder = null
   private var providerResponse: HttpResponse = null
-  private var providerResponseEntity: String = null
+  private var providerResponseStream: InputStream = null
 
   private var proxyRequest: RequestBuilder = null
   private var proxyResponse: HttpResponse = null
-  private var proxyResponseEntity: String = null
+  private var proxyResponseStream: InputStream = null
 
 
   def create(): Unit = {
@@ -56,17 +59,12 @@ abstract class RequestTester(val method: String, val providerUri: String, val pr
   def execute(body: Option[String] = None): Unit = {
     val providerReq = buildRequest(body, providerRequest)
     providerResponse = httpClient.execute(providerReq)
-    val e = providerResponse.getEntity
-    if (e != null)
-      providerResponseEntity = getEncoding(e).trim
-    EntityUtils.consume(e)
 
     val proxyReq = buildRequest(body, proxyRequest)
     proxyResponse = httpClient.execute(proxyReq)
-    val pe = proxyResponse.getEntity
-    if (pe != null)
-      proxyResponseEntity = getEncoding(pe).trim
-    EntityUtils.consume(pe)
+
+    providerResponseStream = cloneEntityStream(providerResponse)
+    proxyResponseStream = cloneEntityStream(proxyResponse)
   }
 
   def customizeBuilder(builder: HttpClientBuilder): Unit
@@ -78,50 +76,69 @@ abstract class RequestTester(val method: String, val providerUri: String, val pr
     proxyRequest.addHeader(name, value)
   }
 
-  def testHeader(name: String): TestResult = {
+  def testHeader(name: String, valueComparer: ValueComparer): TestResult = {
     val providerHeader = providerResponse.getFirstHeader(name)
     val proxyHeader = proxyResponse.getFirstHeader(name)
 
     if (providerHeader != null && proxyHeader != null)
-      new TestResult(name, providerHeader.getValue, proxyHeader.getValue)
+      new TestResult(name, valueComparer, providerHeader.getValue, proxyHeader.getValue)
     else
-      new TestResult(name, providerHeader.getValue, null, "Header missing from the proxy response")
+      new TestResult(name, valueComparer, providerHeader.getValue, null, "Header missing from the proxy response")
   }
 
   def testResponseCode: TestResult = {
-    new TestResult("$status", providerResponse.getStatusLine.getStatusCode.toString, proxyResponse.getStatusLine.getStatusCode.toString)
+    new TestResult("$status", new DefaultComparer(), providerResponse.getStatusLine.getStatusCode.toString, proxyResponse.getStatusLine.getStatusCode.toString)
   }
 
-  private def getEncoding(entity: HttpEntity): String = {
-    val bis = new BOMInputStream(entity.getContent)
-    val encoding = if (bis.hasBOM)
-      bis.getBOMCharsetName
+  def cloneEntityStream(response: HttpResponse): InputStream = {
+    val pe = response.getEntity
+    val stream = if (pe != null)
+      new ByteArrayInputStream(IOUtils.toByteArray(pe.getContent))
+
     else
-      "utf-8"
+      new ByteArrayInputStream(Array[Byte]())
 
-    IOUtils.toString(bis, encoding)
+    EntityUtils.consume(pe)
+
+    stream
   }
 
-  def compare(): List[TestResult] = {
+//  private def getEncoding(entity: HttpEntity): String = {
+//    val bis = new BOMInputStream(entity.getContent)
+//    val encoding = if (bis.hasBOM)
+//      bis.getBOMCharsetName
+//    else
+//      "utf-8"
+//
+//    IOUtils.toString(bis, encoding)
+//  }
 
-    compareResponse() ::: compareHeaders() ::: compareBody()
+  def compare(headersComparers: Map[String,ValueComparer], bodyComparer: BodyComparer): List[TestResult] = {
+
+    compareResponse() ::: compareHeaders(headersComparers) ::: compareBody(bodyComparer)
   }
 
   def compareResponse(): List[TestResult] = {
     List(testResponseCode)
   }
 
-  def compareHeaders(): List[TestResult] = {
-    providerResponse.getAllHeaders.map( h => testHeader(h.getName) ).toList
+  def compareHeaders(comparers: Map[String,ValueComparer]): List[TestResult] = {
+    providerResponse.getAllHeaders.map( h => {
+      val opt = comparers.get(h.getName)
+      opt match {
+        case Some(i) => testHeader(h.getName, i)
+        case None => testHeader(h.getName, new DefaultComparer)
+      }
+    }).toList
   }
 
-  def compareBody(): List[TestResult] = {
+  def compareBody(bodyComparer: BodyComparer): List[TestResult] = {
 //    val d = DiffBuilder.compare(providerResponseEntity)
 //       .withTest(proxyResponseEntity)
 //      .ignoreWhitespace()
 //      .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText))
 //      .build()
-    List()
+    bodyComparer.compare(providerResponseStream, proxyResponseStream)
   }
 
 

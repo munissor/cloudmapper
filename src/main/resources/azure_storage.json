@@ -136,17 +136,20 @@
             {
               "name": "Prefix",
               "logicalName": "ContainerFilter",
-              "kind": "String"
+              "kind": "String",
+              "fallback": "Mirror"
             },
             {
               "name": "Marker",
               "logicalName": "PaginationMarker",
-              "kind": "String"
+              "kind": "String",
+              "fallback": "Mirror"
             },
             {
               "name": "MaxResults",
               "logicalName": "PaginationSize",
-              "kind": "Number"
+              "kind": "Number",
+              "fallback": "Mirror"
             },
             {
               "name": "Containers",

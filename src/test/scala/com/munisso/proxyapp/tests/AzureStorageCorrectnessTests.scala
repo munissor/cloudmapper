@@ -2,10 +2,12 @@ package com.munisso.proxyapp.tests
 
 
 import java.net.URL
+import javax.xml.xpath.{XPathConstants, XPathFactory}
 
 import com.munisso.proxyapp.tests.utils._
 import org.junit.runners.MethodSorters
 import org.junit.{Before, FixMethodOrder, Test}
+import org.w3c.dom.{Document, Element}
 
 object AzureStorageCorrectnessTests {
   val containerName = "testapicontainer" + scala.util.Random.nextInt(100000).toString
@@ -32,7 +34,19 @@ class AzureStorageCorrectnessTests extends AzureCorrectnessTestsBase {
     tester.create()
     tester.execute()
 
-    val results = tester.compare()
+    val results = tester.compare(headerComparers, new XmlBodyComparer((p: XmlBodyComparer, a: Document, e: Document) => {
+      val containers = p.xpathNodeList[Element]("/EnumerationResults/Containers/Container", a, e)
+
+      val testContainerNames = List("testapicontainer", "testapicontainer2", "testapicontainer3")
+      val testContainersA = containers._1.filter( el =>
+        testContainerNames.exists(x => el.getElementsByTagName("Name").item(0).getTextContent() == x)
+      )
+      val testContainersE = containers._2.filter( el =>
+        testContainerNames.exists(x => el.getElementsByTagName("Name").item(0).getTextContent() == x)
+      )
+
+      List(new TestResult("$body, num containers", new PrecomputedComparer(testContainersA.length == 3 && testContainersE.length == 3), testContainersA.length.toString, testContainersE.length.toString))
+    }))
     CorrectnessTestBase.addResults("List Containers", results)
   }
 
@@ -45,7 +59,7 @@ class AzureStorageCorrectnessTests extends AzureCorrectnessTestsBase {
     tester.addHeaders("Content-Length", 0.toString)
     tester.execute()
 
-    val results = tester.compare()
+    val results = tester.compare(headerComparers, new EmptyBodyComparer())
     CorrectnessTestBase.addResults("Create Container", results)
   }
 
@@ -57,9 +71,9 @@ class AzureStorageCorrectnessTests extends AzureCorrectnessTestsBase {
     tester.create()
     tester.addHeaders("Content-Length", 0.toString)
     tester.execute()
-    tester.compare()
 
-    val results = tester.compare()
+
+    val results = tester.compare(headerComparers, new EmptyBodyComparer())
     CorrectnessTestBase.addResults("Delete Container", results)
   }
 
@@ -74,7 +88,7 @@ class AzureStorageCorrectnessTests extends AzureCorrectnessTestsBase {
     tester.addHeaders("Content-Type", "application/xml")
     tester.execute(Some(body))
 
-    val results = tester.compare()
+    val results = tester.compare(headerComparers, new EmptyBodyComparer())
     CorrectnessTestBase.addResults("Add Blob", results)
   }
 
@@ -86,7 +100,7 @@ class AzureStorageCorrectnessTests extends AzureCorrectnessTestsBase {
     tester.create()
     tester.execute()
 
-    val results = tester.compare()
+    val results = tester.compare(headerComparers, new RawBodyComparer())
     CorrectnessTestBase.addResults("Get Blob", results)
   }
 
@@ -97,7 +111,7 @@ class AzureStorageCorrectnessTests extends AzureCorrectnessTestsBase {
     tester.create()
     tester.execute()
 
-    val results = tester.compare()
+    val results = tester.compare(headerComparers, new EmptyBodyComparer())
     CorrectnessTestBase.addResults("Delete Blob", results)
   }
 }
