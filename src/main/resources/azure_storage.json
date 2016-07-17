@@ -4,6 +4,77 @@
   "serviceType": "Blob",
   "configurations": [],
   "signature": "azure",
+  "commonParameters": {
+    "request": {
+      "urlReplacements": [
+        {
+          "name": "account",
+          "logicalName": "AccountName",
+          "kind": "String"
+        }
+      ],
+      "queryString": [
+        {
+          "name": "timeout",
+          "logicalName": "OperationTimeout",
+          "kind": "Number",
+          "optional": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "kind": "Signature"
+        },
+        {
+          "name": "x-ms-date",
+          "aliases": ["Date"],
+          "logicalName": "Date",
+          "kind": "Date"
+        },
+        {
+          "name": "x-ms-version",
+          "logicalName": "ApiVersion",
+          "kind": "String",
+          "value": "2009-09-19"
+        },
+        {
+          "name": "x-ms-client-request-id",
+          "logicalName": "ClientRequestId",
+          "kind": "String",
+          "optional": true
+        }
+      ]
+    },
+    "response": {
+      "headers": [
+        {
+          "name": "x-ms-request-id",
+          "logicalName": "RequestId",
+          "kind": "String",
+          "optional": true
+        },
+        {
+          "name": "x-ms-version",
+          "logicalName": "ApiVersion",
+          "kind": "String",
+          "value": "2009-09-19",
+          "optional": true,
+          "fallback": "Mirror"
+        },
+        {
+          "name": "Date",
+          "logicalName": "Date",
+          "kind": "Date"
+        },
+        {
+          "name": "Server",
+          "logicalName": "Server",
+          "kind": "String"
+        }
+      ]
+    }
+  },
   "operations": [
     {
       "name": "ListContainers",
@@ -11,11 +82,6 @@
         "verb": "GET",
         "url": "{account}.blob.core.windows.net/?comp=list",
         "urlReplacements": [
-          {
-            "name": "account",
-            "logicalName": "AccountName",
-            "kind": "String"
-          }
         ],
         "queryString": [
           {
@@ -48,37 +114,10 @@
             "kind": "String",
             "value": "metadata",
             "optional": true
-          },
-          {
-            "name": "timeout",
-            "logicalName": "OperationTimeout",
-            "kind": "Number",
-            "optional": true
           }
         ],
         "headers": [
-          {
-            "name": "Authorization",
-            "kind": "Signature"
-          },
-          {
-            "name": "x-ms-date",
-            "aliases": ["Date"],
-            "logicalName": "Date",
-            "kind": "Date"
-          },
-          {
-            "name": "x-ms-version",
-            "logicalName": "ApiVersion",
-            "kind": "String",
-            "value": "2009-09-19"
-          },
-          {
-            "name": "x-ms-client-request-id",
-            "logicalName": "ClientRequestId",
-            "kind": "String",
-            "optional": true
-          }
+
         ],
         "body": null
       },
@@ -88,25 +127,6 @@
             "name": "Content-Type",
             "logicalName": "ContentType",
             "kind": "String"
-          },
-          {
-            "name": "x-ms-request-id",
-            "logicalName": "RequestId",
-            "kind": "String",
-            "optional": true
-          },
-          {
-            "name": "x-ms-version",
-            "logicalName": "ApiVersion",
-            "kind": "String",
-            "value": "2009-09-19",
-            "optional": true,
-            "fallback": "Mirror"
-          },
-          {
-            "name": "Date",
-            "logicalName": "Date",
-            "kind": "Date"
           }
         ],
         "body": {
@@ -199,11 +219,6 @@
         "url": "{account}.blob.core.windows.net/{name}",
         "urlReplacements": [
           {
-            "name": "account",
-            "logicalName": "AccountName",
-            "kind": "String"
-          },
-          {
             "name": "name",
             "logicalName": "ObjectName",
             "kind": "String"
@@ -215,40 +230,12 @@
             "logicalName": "ObjectType",
             "kind": "String",
             "value": "container"
-          },
-          {
-            "name": "timeout",
-            "logicalName": "OperationTimeout",
-            "kind": "Number",
-            "optional": true
           }
         ],
         "headers":[
           {
-            "name": "Authorization",
-            "kind": "Signature"
-          },
-          {
-            "name": "x-ms-date",
-            "aliases": ["Date"],
-            "logicalName": "Date",
-            "kind": "Date"
-          },
-          {
-            "name": "x-ms-version",
-            "logicalName": "ApiVersion",
-            "kind": "String",
-            "value": "2009-09-19"
-          },
-          {
             "name": "x-ms-blob-public-access",
             "logicalName": "PublicAccess",
-            "kind": "String",
-            "optional": true
-          },
-          {
-            "name": "x-ms-client-request-id",
-            "logicalName": "ClientRequestId",
             "kind": "String",
             "optional": true
           }
@@ -268,22 +255,6 @@
             "logicalName": "LastModified",
             "kind": "Date",
             "optional": true
-          },
-          {
-            "name": "x-ms-request-id",
-            "logicalName": "RequestId",
-            "kind": "String",
-            "optional": true
-          },
-          {
-            "name": "x-ms-version",
-            "logicalName": "ApiVersion",
-            "kind": "String",
-            "fallback": "Mirror"
-          },
-          {
-            "name": "Date",
-            "kind": "Date"
           }
         ],
         "body": null
@@ -296,11 +267,6 @@
         "url": "{account}.blob.core.windows.net/{name}",
         "urlReplacements": [
           {
-            "name": "account",
-            "logicalName": "AccountName",
-            "kind": "String"
-          },
-          {
             "name": "name",
             "logicalName": "ObjectName",
             "kind": "String"
@@ -312,12 +278,6 @@
             "logicalName": "ObjectType",
             "kind": "String",
             "value": "container"
-          },
-          {
-            "name": "timeout",
-            "logicalName": "OperationTimeout",
-            "kind": "Number",
-            "optional": true
           }
         ],
         "headers":[
@@ -331,25 +291,6 @@
             "name": "Content-Type",
             "logicalName": "ContentType",
             "kind": "String"
-          },
-          {
-            "name": "x-ms-request-id",
-            "logicalName": "RequestId",
-            "kind": "String",
-            "optional": true
-          },
-          {
-            "name": "x-ms-version",
-            "logicalName": "ApiVersion",
-            "kind": "String",
-            "value": "2009-09-19",
-            "optional": true,
-            "fallback": "Mirror"
-          },
-          {
-            "name": "Date",
-            "logicalName": "Date",
-            "kind": "Date"
           }
         ],
         "body": null
@@ -367,11 +308,6 @@
         "verb": "GET",
         "url": "{account}.blob.core.windows.net/{name}",
         "urlReplacements": [
-          {
-            "name": "account",
-            "logicalName": "AccountName",
-            "kind": "String"
-          },
           {
             "name": "name",
             "logicalName": "ObjectName",
@@ -420,37 +356,9 @@
             "logicalName": "ObjectTypeFilter",
             "kind": "String",
             "optional": true
-          },
-          {
-            "name": "timeout",
-            "logicalName": "OperationTimeout",
-            "kind": "Number",
-            "optional": true
           }
         ],
         "headers":[
-          {
-            "name": "Authorization",
-            "kind": "Signature"
-          },
-          {
-            "name": "x-ms-date",
-            "aliases": ["Date"],
-            "logicalName": "Date",
-            "kind": "Date"
-          },
-          {
-            "name": "x-ms-version",
-            "logicalName": "ApiVersion",
-            "kind": "String",
-            "value": "2009-09-19"
-          },
-          {
-            "name": "x-ms-client-request-id",
-            "logicalName": "ClientRequestId",
-            "kind": "String",
-            "optional": true
-          }
         ],
         "body": null
       },
@@ -460,25 +368,6 @@
             "name": "Content-Type",
             "logicalName": "ContentType",
             "kind": "String"
-          },
-          {
-            "name": "x-ms-request-id",
-            "logicalName": "RequestId",
-            "kind": "String",
-            "optional": true
-          },
-          {
-            "name": "x-ms-version",
-            "logicalName": "ApiVersion",
-            "kind": "String",
-            "value": "2009-09-19",
-            "optional": true,
-            "fallback": "Mirror"
-          },
-          {
-            "name": "Date",
-            "logicalName": "Date",
-            "kind": "Date"
           }
         ],
         "body": null
@@ -491,11 +380,6 @@
         "url": "{account}.blob.core.windows.net/{container}/{name}",
         "urlReplacements": [
           {
-            "name": "account",
-            "logicalName": "AccountName",
-            "kind": "String"
-          },
-          {
             "name": "container",
             "logicalName": "ContainerName",
             "kind": "String"
@@ -507,43 +391,14 @@
           }
         ],
         "queryString": [
-          {
-            "name": "timeout",
-            "logicalName": "OperationTimeout",
-            "kind": "Number",
-            "optional": true
-          }
+
         ],
         "headers": [
-          {
-            "name": "Authorization",
-            "kind": "Signature"
-          },
-          {
-            "name": "x-ms-date",
-            "aliases": [
-              "Date"
-            ],
-            "logicalName": "Date",
-            "kind": "Date"
-          },
           {
             "name": "x-ms-blob-type",
             "logicalName": "BlobType",
             "kind": "String",
             "value": "BlockBlobs"
-          },
-          {
-            "name": "x-ms-version",
-            "logicalName": "ApiVersion",
-            "kind": "String",
-            "value": "2009-09-19"
-          },
-          {
-            "name": "x-ms-client-request-id",
-            "logicalName": "ClientRequestId",
-            "kind": "String",
-            "optional": true
           }
         ],
         "body": {
@@ -568,27 +423,6 @@
             "name": "ETag",
             "logicalName": "ETag",
             "kind": "String"
-          },
-          {
-            "name": "Server",
-            "logicalName": "Server",
-            "kind": "String"
-          },
-          {
-            "name": "x-ms-request-id",
-            "logicalName": "RequestId",
-            "kind": "String"
-          },
-          {
-            "name": "x-ms-version",
-            "logicalName": "ApiVersion",
-            "kind": "String",
-            "fallback": "Mirror"
-          },
-          {
-            "name": "Date",
-            "logicalName": "Date",
-            "kind": "String"
           }
         ],
         "body": null
@@ -600,11 +434,6 @@
         "verb": "GET",
         "url": "{account}.blob.core.windows.net/{container}/{name}",
         "urlReplacements": [
-          {
-            "name": "account",
-            "logicalName": "AccountName",
-            "kind": "String"
-          },
           {
             "name": "container",
             "logicalName": "ContainerName",
@@ -618,12 +447,6 @@
         ],
         "queryString": [
           {
-            "name": "timeout",
-            "logicalName": "OperationTimeout",
-            "kind": "Number",
-            "optional": true
-          },
-          {
             "name": "snapshot",
             "logicalName": "BlobSnapshot",
             "kind": "Date",
@@ -632,28 +455,10 @@
         ],
         "headers": [
           {
-            "name": "Authorization",
-            "kind": "Signature"
-          },
-          {
-            "name": "x-ms-date",
-            "aliases": [
-              "Date"
-            ],
-            "logicalName": "Date",
-            "kind": "Date"
-          },
-          {
             "name": "x-ms-blob-type",
             "logicalName": "BlobType",
             "kind": "String",
             "value": "BlockBlobs"
-          },
-          {
-            "name": "x-ms-version",
-            "logicalName": "ApiVersion",
-            "kind": "String",
-            "value": "2009-09-19"
           }
         ],
         "body": null
@@ -664,25 +469,6 @@
             "name": "Content-Type",
             "logicalName": "ContentType",
             "kind": "String"
-          },
-          {
-            "name": "x-ms-request-id",
-            "logicalName": "RequestId",
-            "kind": "String",
-            "optional": true
-          },
-          {
-            "name": "x-ms-version",
-            "logicalName": "ApiVersion",
-            "kind": "String",
-            "value": "2009-09-19",
-            "optional": true,
-            "fallback": "Mirror"
-          },
-          {
-            "name": "Date",
-            "logicalName": "Date",
-            "kind": "Date"
           }
         ],
         "body": {
@@ -699,11 +485,6 @@
         "url": "{account}.blob.core.windows.net/{container}/{name}",
         "urlReplacements": [
           {
-            "name": "account",
-            "logicalName": "AccountName",
-            "kind": "String"
-          },
-          {
             "name": "container",
             "logicalName": "ContainerName",
             "kind": "String"
@@ -716,12 +497,6 @@
         ],
         "queryString": [
           {
-            "name": "timeout",
-            "logicalName": "OperationTimeout",
-            "kind": "Number",
-            "optional": true
-          },
-          {
             "name": "snapshot",
             "logicalName": "BlobSnapshot",
             "kind": "Date",
@@ -730,28 +505,10 @@
         ],
         "headers": [
           {
-            "name": "Authorization",
-            "kind": "Signature"
-          },
-          {
-            "name": "x-ms-date",
-            "aliases": [
-              "Date"
-            ],
-            "logicalName": "Date",
-            "kind": "Date"
-          },
-          {
             "name": "x-ms-blob-type",
             "logicalName": "BlobType",
             "kind": "String",
             "value": "BlockBlobs"
-          },
-          {
-            "name": "x-ms-version",
-            "logicalName": "ApiVersion",
-            "kind": "String",
-            "value": "2009-09-19"
           },
           {
             "name": "x-ms-delete-snapshots",
@@ -768,25 +525,6 @@
             "name": "Content-Type",
             "logicalName": "ContentType",
             "kind": "String"
-          },
-          {
-            "name": "x-ms-request-id",
-            "logicalName": "RequestId",
-            "kind": "String",
-            "optional": true
-          },
-          {
-            "name": "x-ms-version",
-            "logicalName": "ApiVersion",
-            "kind": "String",
-            "value": "2009-09-19",
-            "optional": true,
-            "fallback": "Mirror"
-          },
-          {
-            "name": "Date",
-            "logicalName": "Date",
-            "kind": "Date"
           }
         ],
         "body": null

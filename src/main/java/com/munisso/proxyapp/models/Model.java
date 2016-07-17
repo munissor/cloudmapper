@@ -8,6 +8,7 @@ public class Model {
     public String service;
     public String serviceType;
     public String signature;
+    public Operation commonParameters;
     public Operation[] operations;
     public Configuration[] configurations;
 }

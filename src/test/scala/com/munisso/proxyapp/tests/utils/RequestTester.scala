@@ -1,13 +1,12 @@
 package com.munisso.proxyapp.tests.utils
 
 import org.apache.commons.io.IOUtils
-import org.apache.http.{HttpEntity, HttpHost, HttpRequest, HttpResponse}
+import org.apache.http.{HttpEntity, HttpHost, HttpResponse}
 import org.apache.http.client.HttpClient
-import org.apache.http.client.methods.{HttpEntityEnclosingRequestBase, HttpPut, HttpUriRequest, RequestBuilder}
+import org.apache.http.client.methods.{HttpUriRequest, RequestBuilder}
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner
-import org.apache.http.protocol.HTTP
 import org.apache.http.util.EntityUtils
 import org.xmlunit.builder.DiffBuilder
 import org.apache.commons.io.input.BOMInputStream
@@ -94,10 +93,9 @@ abstract class RequestTester(val method: String, val providerUri: String, val pr
   }
 
   private def getEncoding(entity: HttpEntity): String = {
-    val instream = entity.getContent()
-    val bis = new BOMInputStream(instream)
-    val encoding = if (bis.hasBOM())
-      bis.getBOMCharsetName()
+    val bis = new BOMInputStream(entity.getContent)
+    val encoding = if (bis.hasBOM)
+      bis.getBOMCharsetName
     else
       "utf-8"
 
@@ -118,11 +116,11 @@ abstract class RequestTester(val method: String, val providerUri: String, val pr
   }
 
   def compareBody(): List[TestResult] = {
-    val d = DiffBuilder.compare(providerResponseEntity)
-       .withTest(proxyResponseEntity)
-      .ignoreWhitespace()
-      .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText))
-      .build()
+//    val d = DiffBuilder.compare(providerResponseEntity)
+//       .withTest(proxyResponseEntity)
+//      .ignoreWhitespace()
+//      .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText))
+//      .build()
     List()
   }
 

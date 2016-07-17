@@ -47,17 +47,17 @@ class ModelMapper {
         route.remoteVerb = destOperation.request.verb
 
         val sourceReqArgs =
-          extractArguments("url", srcOperation.request.urlReplacements) ++
-            extractArguments("header", srcOperation.request.headers) ++
-            extractArguments("query", srcOperation.request.queryString) ++
+          extractArguments("url", mergeWithDefaults(srcOperation, source, x => x.request.urlReplacements)) ++
+            extractArguments("header", mergeWithDefaults(srcOperation, source, x => x.request.headers)) ++
+            extractArguments("query", mergeWithDefaults(srcOperation, source, x => x.request.queryString)) ++
             extractBodyArguments(srcOperation.request.body)
 
         val sourceReqMap = sourceReqArgs.map(x => x.logicalName -> x).toMap
 
         val destReqArgs =
-          extractArguments("url", destOperation.request.urlReplacements) ++
-            extractArguments("header", destOperation.request.headers) ++
-            extractArguments("query", destOperation.request.queryString) ++
+          extractArguments("url", mergeWithDefaults(destOperation, destination, x => x.request.urlReplacements)) ++
+            extractArguments("header", mergeWithDefaults(destOperation, destination, x => x.request.headers)) ++
+            extractArguments("query", mergeWithDefaults(destOperation, destination, x => x.request.queryString)) ++
             extractBodyArguments(destOperation.request.body)
 
         destReqArgs.foreach(arg => {
@@ -91,12 +91,12 @@ class ModelMapper {
 
         // PARSE DESTINATION RESPONSE
 
-        val destResArgs = extractArguments("header", destOperation.response.headers) ++
+        val destResArgs = extractArguments("header", mergeWithDefaults(destOperation, destination, x => x.response.headers)) ++
           extractBodyArguments(destOperation.response.body)
 
         val destResMap = destResArgs.map(x => x.logicalName -> x).toMap
 
-        val srcResArgs = extractArguments("header", srcOperation.response.headers) ++
+        val srcResArgs = extractArguments("header", mergeWithDefaults(srcOperation, source, x => x.response.headers)) ++
           extractBodyArguments(srcOperation.response.body)
 
         srcResArgs.foreach(arg => {
@@ -140,7 +140,7 @@ class ModelMapper {
       route.buildResponse = aggregateParameters(route.buildResponse.toList)
     })
 
-    return mapping
+    mapping
   }
 
   private def readModelFromFile(file: File): Model = {
@@ -150,22 +150,16 @@ class ModelMapper {
     mapper.readValue(file, classOf[Model])
   }
 
-  private def extractArguments(location: String, parameters: Array[Parameter]): ListBuffer[MappingParameter] = {
-    val res = new ListBuffer[MappingParameter]
+  private def extractArguments(location: String, parameters: List[Parameter]): List[MappingParameter] = {
 
-    if (parameters != null) {
-
-      parameters.foreach( h => {
-
+    if (parameters != null)
+      parameters.map( h => {
         val m = MappingParameter.fromParameter(h)
         m.location = location
-
-        res += m
-
+        m
       })
-    }
-
-    return res
+    else
+      List()
   }
 
   private def extractBodyArguments(body: Parameter): ListBuffer[MappingParameter] = {
@@ -242,6 +236,20 @@ class ModelMapper {
     })
 
     return res
+  }
+
+  private def mergeWithDefaults(operation: Operation, model: Model, extractor: (Operation) => Array[Parameter] ) = {
+    val definedParameters = safeExtractor(operation, extractor)
+    val defaultParameters = if(model.commonParameters!=null) safeExtractor(model.commonParameters, extractor) else List()
+
+    val missingDefaults = defaultParameters.filter( p => !definedParameters.exists( x => x.logicalName == p.logicalName ) )
+
+    definedParameters ::: missingDefaults
+  }
+
+  private def safeExtractor(operation: Operation, extractor: (Operation) => Array[Parameter] ): List[Parameter] = {
+    val extracted = extractor(operation)
+    if( extracted != null) extracted.toList else Nil
   }
 
 }
