@@ -21,6 +21,8 @@ class ModelMapper {
     val sourceModel = readModelFromFile(sourceFile)
     val destinationModel = readModelFromFile(destinationFile)
 
+     // TODO: verify models
+
      mapModels(sourceModel, destinationModel)
   }
 
@@ -145,8 +147,6 @@ class ModelMapper {
 
   private def readModelFromFile(file: File): Model = {
     val mapper: ObjectMapper = new ObjectMapper
-    //mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-
     mapper.readValue(file, classOf[Model])
   }
 
@@ -169,7 +169,7 @@ class ModelMapper {
       extractBodyArguments("", body, res)
     }
 
-    return res
+    res
   }
 
   private def extractBodyArguments(prefix: String, parameter: Parameter, extracted: ListBuffer[MappingParameter]): Unit = {
@@ -195,7 +195,7 @@ class ModelMapper {
     if( prefix.length() > 0){
       return prefix + "." + toAppend
     }
-    return toAppend
+    toAppend
   }
 
   private def aggregateParameters(parameters: List[MappingParameter]) : ListBuffer[MappingParameter] = {
@@ -235,7 +235,7 @@ class ModelMapper {
 
     })
 
-    return res
+    res
   }
 
   private def mergeWithDefaults(operation: Operation, model: Model, extractor: (Operation) => Array[Parameter] ) = {

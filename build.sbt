@@ -7,6 +7,7 @@ lazy val root = (project in file(".")).
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.5",
       "com.fasterxml.jackson.core" % "jackson-annotations" % "2.7.5",
       "com.fasterxml.jackson.core" % "jackson-core" % "2.7.5",
+      "com.github.scopt" % "scopt_2.11" % "3.5.0",
 
       "org.apache.httpcomponents" % "httpclient" % "4.5.2",
       "commons-io" % "commons-io" % "2.5",
