@@ -5,4 +5,5 @@ object Locations {
   val LOCATION_URL: String = "url"
   val LOCATION_QUERY: String = "query"
   val LOCATION_BODY: String = "body"
+  val LOCATION_CONFIG: String = "config"
 }

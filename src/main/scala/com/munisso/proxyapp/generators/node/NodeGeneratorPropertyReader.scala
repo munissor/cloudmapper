@@ -73,6 +73,7 @@ abstract class NodeGeneratorPropertyReader(writer: IndentedPrintWriter, protecte
       case Locations.LOCATION_QUERY => formatExtractParameter(propertyNames.requestVariable + ".query.%s", parameter)
       case Locations.LOCATION_HEADER => formatExtractParameter(getHeaderFormat, parameter, n => n.toLowerCase)
       case Locations.LOCATION_BODY => formatExtractParameter(propertyNames.requestParser + ".getValue('%s'" + parent + ")", parameter, n => if (n.startsWith(".")) n.substring(1) else n)
+      case Locations.LOCATION_CONFIG => String.format("config.%s", parameter.logicalName)
       case _ =>
         if (parameter.fallback == FallbackOption.Config)
           String.format("config.%s", parameter.logicalName)

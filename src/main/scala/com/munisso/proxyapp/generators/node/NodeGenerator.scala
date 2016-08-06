@@ -71,7 +71,7 @@ class NodeGenerator extends Generator {
 
     pkg.code = stringWriter.toString
 
-    return pkg
+    pkg
   }
 
   private def generateRoute(mapping: Mapping, route: Route, indentedPrintWriter: IndentedPrintWriter): Unit = {
@@ -94,47 +94,54 @@ class NodeGenerator extends Generator {
     indentedPrintWriter.printLn("server.%s('%s', function(req, res, next){", getRestifyRoute(route.verb), path)
     indentedPrintWriter.increaseIndent()
 
-    writeMappingError(route.routeError, indentedPrintWriter)
+    if (route.routeError == null) {
 
-    val reader = new NodeGeneratorRestifyPropertyReader(indentedPrintWriter)
-    reader.extractProperties(route.parseRequest.asScala)
-
-
-    var reqWriter = new NodeGeneratorRequestPropertyWriter(indentedPrintWriter)
-    reqWriter.writeProperties(route.remoteUrl, route.buildRequest.asScala)
-
-    indentedPrintWriter.printLn("var options = {method: '%s', url: urlString, body: %s, headers: %s};", route.remoteVerb, reqWriter.propertyNames.body, reqWriter.propertyNames.requestHeaders )
-    indentedPrintWriter.printLn()
-
-    indentedPrintWriter.printLn("signature.buildSignature('%s', options, function(r) {", mapping.signature)
-    indentedPrintWriter.increaseIndent()
-    indentedPrintWriter.printLn("request(r, function(error, response, body){")
-    indentedPrintWriter.increaseIndent()
+      val reader = new NodeGeneratorRestifyPropertyReader(indentedPrintWriter)
+      reader.extractProperties(route.parseRequest.asScala)
 
 
-    var resReader = new NodeGeneratorRequestPropertyReader(indentedPrintWriter)
-    resReader.extractProperties(route.parseResponse.asScala)
+      var reqWriter = new NodeGeneratorRequestPropertyWriter(indentedPrintWriter)
+      reqWriter.writeProperties(route.remoteUrl, route.buildRequest.asScala)
+
+      indentedPrintWriter.printLn("var options = {method: '%s', url: urlString, body: %s, headers: %s};", route.remoteVerb, reqWriter.propertyNames.body, reqWriter.propertyNames.requestHeaders)
+      indentedPrintWriter.printLn()
+
+      indentedPrintWriter.printLn("signature.buildSignature('%s', options, function(r) {", mapping.signature)
+      indentedPrintWriter.increaseIndent()
+      indentedPrintWriter.printLn("request(r, function(error, response, body){")
+      indentedPrintWriter.increaseIndent()
 
 
-    // Build response
-    var resWriter = new NodeGeneratorRestifyPropertyWriter(indentedPrintWriter)
-    resWriter.writeProperties("", route.buildResponse.asScala)
+      var resReader = new NodeGeneratorRequestPropertyReader(indentedPrintWriter)
+      resReader.extractProperties(route.parseResponse.asScala)
 
+      route.requestErrors.asScala.foreach( writeMappingError(_, indentedPrintWriter) )
 
-    // TODO: map status ?
-    indentedPrintWriter.printLn("var status = response.statusCode;")
+      // Build response
+      var resWriter = new NodeGeneratorRestifyPropertyWriter(indentedPrintWriter)
+      resWriter.writeProperties("", route.buildResponse.asScala)
 
-    // TODO: don't hardcode the headers
-    indentedPrintWriter.printLn("res.writeHead(status, dstResHeaders);")
-    indentedPrintWriter.printLn("res.write(%s);", resWriter.propertyNames.body)
-    indentedPrintWriter.printLn("res.end();")
-    indentedPrintWriter.printLn("return next();")
+      route.responseErrors.asScala.foreach( writeMappingError(_, indentedPrintWriter) )
 
-    indentedPrintWriter.decreaseIndent()
-    indentedPrintWriter.printLn("});")
-    indentedPrintWriter.decreaseIndent()
-    indentedPrintWriter.printLn("});")
-    indentedPrintWriter.printLn()
+      // TODO: map status ?
+      indentedPrintWriter.printLn("var status = response.statusCode;")
+
+      // TODO: don't hardcode the headers
+      indentedPrintWriter.printLn("res.writeHead(status, dstResHeaders);")
+      indentedPrintWriter.printLn("res.write(%s);", resWriter.propertyNames.body)
+      indentedPrintWriter.printLn("res.end();")
+      indentedPrintWriter.printLn("return next();")
+
+      indentedPrintWriter.decreaseIndent()
+      indentedPrintWriter.printLn("});")
+      indentedPrintWriter.decreaseIndent()
+      indentedPrintWriter.printLn("});")
+      indentedPrintWriter.printLn()
+
+    }
+    else {
+      writeMappingError(route.routeError, indentedPrintWriter)
+    }
 
     // END ROUTE
     indentedPrintWriter.decreaseIndent()
@@ -151,10 +158,8 @@ class NodeGenerator extends Generator {
 
 
   private def writeMappingError(error: MappingError, indentedPrintWriter: IndentedPrintWriter) = {
-    if(error != null) {
-      indentedPrintWriter.printLn("// FIXME")
-      indentedPrintWriter.printLn("throw new Error('%s');", error.message)
-    }
+    indentedPrintWriter.printLn("// FIXME: %s", error.message )
+    //indentedPrintWriter.printLn("throw new Error('%s');", error.message)
   }
 
   private def require(writer: IndentedPrintWriter, module: String, local: Boolean = false, variable: String = null) = {
@@ -208,7 +213,7 @@ class NodeGenerator extends Generator {
 
     pkg.code = stringWriter.toString
 
-    return pkg
+    pkg
   }
 
 

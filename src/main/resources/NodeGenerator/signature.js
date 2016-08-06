@@ -101,7 +101,7 @@ function  _googleServiceToken(requestData, callback) {
 
 
 function _azureSignRequest(requestData, callback) {
-    _azureSignRequestSync(requestData, config.accountName, config.sharedKey);
+    _azureSignRequestSync(requestData, config.AccountName, config.sharedKey);
     callback(requestData);
 }
 

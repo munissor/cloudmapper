@@ -2,7 +2,10 @@
   "provider": "Azure",
   "service": "Storage",
   "serviceType": "Blob",
-  "configurations": [],
+  "configurations": [
+    {"key": "AccountName", "value": ""},
+    {"key": "sharedKey", "value": ""}
+  ],
   "signature": "azure",
   "commonParameters": {
     "request": {

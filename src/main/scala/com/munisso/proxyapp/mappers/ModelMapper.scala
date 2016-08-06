@@ -2,7 +2,7 @@ package com.munisso.proxyapp.mappers
 
 import java.io.File
 
-import com.fasterxml.jackson.databind.{ObjectMapper, SerializationFeature}
+import com.fasterxml.jackson.databind.{ObjectMapper}
 
 import scala.collection.mutable._
 import scala.collection.JavaConversions._
@@ -80,8 +80,17 @@ class ModelMapper {
 
               route.buildRequest.add(arg)
             }
-            else if (!arg.optional) {
-              route.requestErrors.add(new MappingError(String.format("Missing mandatory parameter %s from request", arg.logicalName)))
+            else if(mapping.configurations.exists( c => c.key == arg.logicalName )){
+              val dup = MappingParameter.duplicate(arg)
+              dup.location = Locations.LOCATION_CONFIG
+
+              route.parseRequest.add(dup)
+              route.buildRequest.add(arg)
+            }
+            else if (!arg.optional && arg.logicalName != null ) {
+              route.requestErrors.add(
+                new MappingError(
+                  String.format("Missing mandatory parameter %s (%s) from request", arg.logicalName, arg.kind)))
             }
           }
           else {
@@ -119,14 +128,23 @@ class ModelMapper {
               }
               val dup = MappingParameter.duplicate(arg)
               dup.location = null
-              route.buildResponse.add(dup)
+              route.parseResponse.add(dup)
               route.buildResponse.add(arg)
             }
             else if (arg.value != null) {
               route.buildResponse.add(arg)
             }
-            else if (!arg.optional) {
-              route.responseErrors.add(new MappingError(String.format("Missing mandatory parameter %s from response", arg.logicalName)))
+            else if(mapping.configurations.exists( c => c.key == arg.logicalName )){
+              val dup = MappingParameter.duplicate(arg)
+              dup.location = Locations.LOCATION_CONFIG
+
+              route.parseResponse.add(dup)
+              route.buildResponse.add(arg)
+            }
+            else if (!arg.optional && arg.logicalName != null) {
+              route.responseErrors.add(
+                new MappingError(
+                  String.format("Missing mandatory parameter %s (%s) from response", arg.logicalName, arg.kind)))
             }
           }
           else {
