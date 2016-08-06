@@ -101,7 +101,35 @@ function  _googleServiceToken(requestData, callback) {
 
 
 function _azureSignRequest(requestData, callback) {
+    _azureSignRequestSync(requestData, config.accountName, config.sharedKey);
     callback(requestData);
+}
+
+
+function _azureSignRequestSync(requestData, accountName, sharedKey){
+    var buffer = requestData.method;
+
+    buffer = _azureAppendHeaderValue(buffer, requestData, "Content-Encoding");
+    buffer = _azureAppendHeaderValue(buffer, requestData, "Content-Language");
+    buffer = _azureAppendHeaderValue(buffer, requestData, "Content-Length");
+    buffer = _azureAppendHeaderValue(buffer, requestData, "Content-MD5");
+    buffer = _azureAppendHeaderValue(buffer, requestData, "Content-Type");
+    buffer = _azureAppendHeaderValue(buffer, requestData, "Date");
+    buffer = _azureAppendHeaderValue(buffer, requestData, "If-Modified-Since");
+    buffer = _azureAppendHeaderValue(buffer, requestData, "If-Match");
+    buffer = _azureAppendHeaderValue(buffer, requestData, "If-None-Match");
+    buffer = _azureAppendHeaderValue(buffer, requestData, "If-Unmodified-Since");
+    buffer = _azureAppendHeaderValue(buffer, requestData, "Range");
+    buffer = _azureAppendValue(buffer, _azureBuildCanonicalizedHeaders(requestData));
+    buffer = _azureAppendValue(buffer, _azureBuildCanonicalizedResource(requestData, accountName));
+
+    var hash = _azureHashRequestString(buffer, sharedKey);
+
+    requestData.headers["Authorization"] = "SharedKey " + accountName + ":" + hash;
+}
+
+
+function _azureHashRequestString(buffer, sharedKey){
 }
 
 /*
@@ -145,6 +173,19 @@ function _azureSignRequest(requestData, callback) {
  buffer.append(value);
  }
 
+*/
+
+function _azureAppendHeaderValue(buffer, requestData, headerName) {
+    var value = requestData[headerName] || "";
+    return _azureAppendValue(buffer, value);
+}
+
+function _azureAppendValue(buffer, value) {
+    return buffer + "\n" + value;
+}
+
+/*
+
  private static void AppendHeaderValue(StringBuffer buffer, HttpRequest request, String headerName)
  {
  Header header = request.getFirstHeader(headerName);
@@ -159,6 +200,15 @@ function _azureSignRequest(requestData, callback) {
  }
  AppendValue(buffer, value);
  }
+
+
+*/
+
+function _azureBuildCanonicalizedHeaders(requestData){
+    var buffer = "";
+}
+
+/*
 
  private static String BuildCanonicalizedHeaders(HttpRequest request)
  {
@@ -182,6 +232,14 @@ function _azureSignRequest(requestData, callback) {
  return buffer.toString();
  }
 
+*/
+
+function _azureBuildCanonicalizedResource(requestData) {
+    var buffer = "";
+    return buffer;
+}
+
+/*
  private static String BuildCanonicalizedResource(HttpRequest request, String accountName) throws Exception
  {
  StringBuffer buffer = new StringBuffer("/");

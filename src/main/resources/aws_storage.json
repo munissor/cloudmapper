@@ -2,10 +2,13 @@
   "provider": "AWS",
   "service": "Storage",
   "serviceType": "Blob",
+  "configurations": [
+    {"key": "accessKeyID", "value": ""},
+    {"key": "secretAccessKey", "value": ""}
+  ],
   "signature": "aws-v4",
   "commonParameters": {
     "request":{
-
     },
     "response": {
       "headers": [

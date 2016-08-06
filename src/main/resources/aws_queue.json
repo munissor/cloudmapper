@@ -3,6 +3,8 @@
   "service": "Storage",
   "serviceType": "Queue",
   "configurations": [
+    {"key": "accessKeyID", "value": ""},
+    {"key": "secretAccessKey", "value": ""}
   ],
   "signature": "aws-v4",
   "operations": [

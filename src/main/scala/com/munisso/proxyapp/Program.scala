@@ -2,13 +2,11 @@ package com.munisso.proxyapp
 
 import java.io.{File, FileReader, FileWriter}
 import java.nio.file.Paths
-
+import scala.collection.JavaConversions._
 import com.fasterxml.jackson.databind.{ObjectMapper, SerializationFeature}
 import com.munisso.proxyapp.generators.GeneratorFactory
 import com.munisso.proxyapp.mappers.ModelMapper
 import com.munisso.proxyapp.models.{Mapping, Model}
-
-
 
 object Program {
 
@@ -135,7 +133,18 @@ object Program {
   }
 
   private def checkMapping(mapping: Mapping): Unit = {
-    // TODO
+    mapping.routes.foreach( x => {
+
+      if(x.routeError != null){
+        println(x.routeError.message)
+      }
+      else{
+        x.requestErrors.foreach( m => println(m.message))
+        x.responseErrors.foreach(m => println(m.message))
+      }
+      println()
+    })
+
   }
 
   def generateProxy(input: String, language: String, basePath: String): Unit = {
@@ -161,36 +170,4 @@ object Program {
       case None => println("Language not supported")
     }
   }
-
-  def xgenerateMapping(srcData: File, trgData: File, outPath: String): Unit = {
-    val mapper: ObjectMapper = new ObjectMapper
-
-    val srcModel = mapper.readValue(srcData, classOf[Model])
-    val dstModel = mapper.readValue(trgData, classOf[Model])
-
-    val modelMapper = new ModelMapper()
-
-    val mapping = modelMapper.mapModels(srcModel, dstModel)
-
-    val out = new FileWriter(outPath)
-    mapper.writeValue(out, mapping)
-    out.close()
-  }
-
-   def createProxy(srcData: String, trgData: String, outName: String, proxyName: String): Unit = {
-     val mapper: ObjectMapper = new ObjectMapper
-     mapper.configure(SerializationFeature.INDENT_OUTPUT, true)
-
-
-
-
-
-     val generator = GeneratorFactory.getGenerator("nodejs").get
-
-
-
-
-   }
-
-
 }

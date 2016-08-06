@@ -21,7 +21,7 @@ class NodeGenerator extends Generator {
 
     l.append(readResource("package.json"))
     //TODO: restore
-    //l.append(generateConfig())
+    l.append(generateConfig(mapping))
 
     l.append(generateProxy(mapping))
 
@@ -46,13 +46,13 @@ class NodeGenerator extends Generator {
     pkg.name = resource
     pkg.code = Source.fromFile("./src/main/resources/NodeGenerator/" + resource ).mkString
 
-    return pkg
+    pkg
   }
 
 
-  private def generateConfig(): CodeFile = {
+  private def generateConfig(mapping: Mapping): CodeFile = {
     val pkg = new CodeFile()
-    pkg.name = "config/default.json"
+    pkg.name = "config/defaultx.json"
 
     val stringWriter = new StringWriter()
     val indentedWriter = new IndentedPrintWriter(stringWriter)
@@ -61,6 +61,10 @@ class NodeGenerator extends Generator {
     indentedWriter.increaseIndent()
 
     indentedWriter.printLn("\"port\": 3000")
+
+    mapping.configurations.foreach( c => {
+      indentedWriter.printLn(", \"%s\": \"%s\"", c.key, c.value)
+    })
 
     indentedWriter.decreaseIndent()
     indentedWriter.printLn("}")
