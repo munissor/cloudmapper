@@ -4,6 +4,7 @@
 	"main": "index.js",
 	"dependencies": {
 		"restify": "*",
+		"dnscache": "*",
 		"config": "*",
 		"moment": "*",
 		"request": "*",

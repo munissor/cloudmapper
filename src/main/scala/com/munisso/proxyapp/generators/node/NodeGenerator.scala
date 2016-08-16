@@ -108,6 +108,7 @@ class NodeGenerator extends Generator {
 
       indentedPrintWriter.printLn("signature.buildSignature('%s', options, function(r) {", mapping.signature)
       indentedPrintWriter.increaseIndent()
+      indentedPrintWriter.printLn("r.forever = true;")
       indentedPrintWriter.printLn("request(r, function(error, response, body){")
       indentedPrintWriter.increaseIndent()
 
@@ -189,6 +190,8 @@ class NodeGenerator extends Generator {
 
     require(indentedWriter, "request")
     require(indentedWriter, "restify")
+    require(indentedWriter, "dns")
+    require(indentedWriter, "dnscache")
     require(indentedWriter, "config")
 
     require(indentedWriter, "parserFactory", true)
@@ -196,6 +199,14 @@ class NodeGenerator extends Generator {
     require(indentedWriter, "signature", true)
     require(indentedWriter, "formatUtils", true)
 
+    indentedWriter.printLn()
+    indentedWriter.printLn("dnscache({")
+    indentedWriter.increaseIndent()
+    indentedWriter.printLn("  'enable' : true,")
+    indentedWriter.printLn("  'ttl' : 300,")
+    indentedWriter.printLn("  'cachesize' : 1000")
+    indentedWriter.decreaseIndent()
+    indentedWriter.printLn("});")
     indentedWriter.printLn()
     indentedWriter.printLn("var server = restify.createServer();")
     indentedWriter.printLn("server.use(restify.queryParser());")

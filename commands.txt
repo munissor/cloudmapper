@@ -1,0 +1,9 @@
+# test latency
+curl -w "@curl_format.txt" http://s3.us-west-2.amazonaws.com/
+
+# resource monitoring
+top -p 6888 -b | awk '/^ 6888/'
+
+
+# Test
+./apache-jmeter-3.0/bin/jmeter -Jthreads=500 -n -t ~/GetContainers_Params.jmx -l ~/log.csv
