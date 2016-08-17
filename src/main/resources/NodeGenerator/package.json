@@ -12,6 +12,8 @@
 		"jwt-simple": "*",
 		"xmldom": "*",
 		"xmlbuilder": "*",
-		"xpath": "*"
+		"xpath": "*",
+		"zlib": "*",
+		"assert-plus": "*"
 	}
 }

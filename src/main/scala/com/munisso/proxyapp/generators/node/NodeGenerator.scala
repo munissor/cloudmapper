@@ -27,6 +27,7 @@ class NodeGenerator extends Generator {
 
     l.append(readResource("signature.js"))
     l.append(readResource("formatUtils.js"))
+    l.append(readResource("bodyreader.js"))
 
     l.append(readResource("rawParser.js"))
     l.append(readResource("xmlParser.js"))
@@ -109,6 +110,18 @@ class NodeGenerator extends Generator {
       indentedPrintWriter.printLn("signature.buildSignature('%s', options, function(r) {", mapping.signature)
       indentedPrintWriter.increaseIndent()
       indentedPrintWriter.printLn("r.forever = true;")
+
+      val bodyArg = route.parseResponse.asScala.find( x=> x.location == Locations.LOCATION_BODY)
+      bodyArg match {
+        case Some(i) => {
+          val contentType = i.kind match {
+            case Types.Binary => indentedPrintWriter.printLn("r.encoding = null;")
+            case _ =>
+          }
+        }
+        case None =>
+      }
+
       indentedPrintWriter.printLn("request(r, function(error, response, body){")
       indentedPrintWriter.increaseIndent()
 
@@ -198,6 +211,7 @@ class NodeGenerator extends Generator {
     require(indentedWriter, "writerFactory", true)
     require(indentedWriter, "signature", true)
     require(indentedWriter, "formatUtils", true)
+    require(indentedWriter, "bodyreader", true)
 
     indentedWriter.printLn()
     indentedWriter.printLn("dnscache({")
@@ -210,7 +224,8 @@ class NodeGenerator extends Generator {
     indentedWriter.printLn()
     indentedWriter.printLn("var server = restify.createServer();")
     indentedWriter.printLn("server.use(restify.queryParser());")
-    indentedWriter.printLn("server.use(restify.bodyParser({ mapParams: false }));")
+    //indentedWriter.printLn("server.use(restify.bodyParser({ mapParams: false }));")
+    indentedWriter.printLn("server.use(bodyreader());")
     indentedWriter.printLn()
 
     mapping.routes.asScala.foreach(r => generateRoute(mapping, r, indentedWriter) )

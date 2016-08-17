@@ -19,6 +19,8 @@ function XMLWriter(){
     };
 
     this.toString = function() {
+        if (Object.getOwnPropertyNames(this.data).length === 0)
+            return null;
         return builder.create(this.data).toString();
     };
 

@@ -17,7 +17,7 @@ abstract class NodeGeneratorPropertyReader(writer: IndentedPrintWriter, protecte
       case Some(i) => {
         val contentType = i.kind match {
           case Types.Binary => "'_raw'"
-          case _ => getContentType()
+          case _ => getContentType(parameters)
         }
         writer.printLn("var %s = parserFactory.getParser(%s, %s);", propertyNames.requestParser, contentType, getBody)
        }
@@ -28,7 +28,24 @@ abstract class NodeGeneratorPropertyReader(writer: IndentedPrintWriter, protecte
     extractProperties(parameters, null, null, null)
   }
 
+  protected def getContentType(parameters: Iterable[MappingParameter]): String = {
+    val ct = getContentType()
+    val d = getDefaultContentType(parameters)
+    d match {
+      case Some(v) => String.format("%s || '%s'", ct, v)
+      case None => ct
+    }
+  }
+
   protected def getContentType(): String
+
+  protected def getDefaultContentType(parameters: Iterable[MappingParameter]): Option[String] = {
+    val contentType = parameters.find(_.logicalName == "ContentType")
+    contentType match {
+      case Some(p) => Option(p.value)
+      case None => None
+    }
+  }
 
   protected def getBody(): String
 

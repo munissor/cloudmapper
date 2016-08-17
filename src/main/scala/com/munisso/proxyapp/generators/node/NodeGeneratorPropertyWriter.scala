@@ -14,8 +14,24 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, val prop
 
   private val queryString = ListBuffer[(String, String, Boolean)]()
 
+  protected def getContentType(parameters: Iterable[MappingParameter]): String = {
+    val ct = getContentType()
+    val d = getDefaultContentType(parameters)
+    d match {
+      case Some(v) => String.format("%s || '%s'", ct, v)
+      case None => ct
+    }
+  }
 
   protected def getContentType(): String
+
+  private def getDefaultContentType(parameters: Iterable[MappingParameter]): Option[String] = {
+    val contentType = parameters.find(_.logicalName == "ContentType")
+    contentType match {
+      case Some(p) => Option(p.value)
+      case None => None
+    }
+  }
 
   def writeProperties(remoteUrl: String, parameters: Iterable[MappingParameter]): Unit = {
 
@@ -24,7 +40,7 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, val prop
       case Some(i) => {
         val contentType = i.kind match {
           case Types.Binary => "'_raw'"
-          case _ => getContentType()
+          case _ => getContentType(parameters)
         }
         writer.printLn("var %s = writerFactory.getWriter(%s);", propertyNames.requestWriter, contentType)
       }
@@ -146,7 +162,6 @@ abstract class NodeGeneratorPropertyWriter(writer: IndentedPrintWriter, val prop
 
     propertyNames.property(parameter)
   }
-
 }
 
 class NodeGeneratorRequestPropertyWriter(writer: IndentedPrintWriter)

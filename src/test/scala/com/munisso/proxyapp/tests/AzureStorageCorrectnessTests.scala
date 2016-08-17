@@ -10,7 +10,7 @@ import org.junit.{Before, FixMethodOrder, Test}
 import org.w3c.dom.{Document, Element}
 
 object AzureStorageCorrectnessTests {
-  val containerName = "testapicontainer" + scala.util.Random.nextInt(100000).toString
+  val containerName = "ncipictures2"
 }
 /**
   * Created by riccardo on 26/06/16.
