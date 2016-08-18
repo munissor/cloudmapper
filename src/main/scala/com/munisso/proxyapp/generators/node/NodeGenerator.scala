@@ -45,7 +45,7 @@ class NodeGenerator extends Generator {
   private def readResource(resource: String): CodeFile = {
     val pkg = new CodeFile()
     pkg.name = resource
-    pkg.code = Source.fromFile("./src/main/resources/NodeGenerator/" + resource ).mkString
+    pkg.code = Source.fromInputStream(this.getClass().getResourceAsStream("/NodeGenerator/" + resource) ).mkString
 
     pkg
   }

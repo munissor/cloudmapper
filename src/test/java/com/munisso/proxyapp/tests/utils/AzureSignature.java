@@ -43,7 +43,7 @@ public class AzureSignature {
         request.addHeader("Authorization", "SharedKey " + accountName + ":" + hash);
     }
 
-    private static String HashRequestString(String stringToSign, String sharedKey) throws NoSuchAlgorithmException, InvalidKeyException
+    public static String HashRequestString(String stringToSign, String sharedKey) throws NoSuchAlgorithmException, InvalidKeyException
     {
         final Charset utf8 = Charset.forName("UTF-8");
         final Mac hmacSha256 = Mac.getInstance("HmacSHA256");

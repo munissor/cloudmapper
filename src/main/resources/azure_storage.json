@@ -30,10 +30,11 @@
           "kind": "Signature"
         },
         {
-          "name": "x-ms-date",
-          "aliases": ["Date"],
+          "name": "Date",
+          "aliases": ["x-ms-date"],
           "logicalName": "Date",
-          "kind": "Date"
+          "kind": "Date",
+          "format": "rfc1123"
         },
         {
           "name": "x-ms-version",

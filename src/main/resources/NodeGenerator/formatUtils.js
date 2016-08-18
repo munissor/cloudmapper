@@ -14,7 +14,7 @@ function formatDate(value, format){
     }
     else if(format == 'rfc1123'){
         d = _parseDate(value);
-        return d.format('ddd, DD MMM YYYY HH:mm:ss z');
+        return d.utc().format('ddd, DD MMM YYYY HH:mm:ss') + ' GMT';
     }
 
     return value;

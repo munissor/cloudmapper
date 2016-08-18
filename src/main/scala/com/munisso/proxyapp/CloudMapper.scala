@@ -1,18 +1,19 @@
 package com.munisso.proxyapp
 
-import java.io.{File, FileReader, FileWriter}
+import java.io._
 import java.nio.file.Paths
+
 import scala.collection.JavaConversions._
 import com.fasterxml.jackson.databind.{ObjectMapper, SerializationFeature}
 import com.munisso.proxyapp.generators.GeneratorFactory
 import com.munisso.proxyapp.mappers.ModelMapper
 import com.munisso.proxyapp.models.{Mapping, Model}
 
-object Program {
+object CloudMapper {
 
   def main(args: Array[String]): Unit = {
      val cmdParser = new scopt.OptionParser[Config]("proxyapp") {
-       head("proxyapp", "1.x")
+       head("cloud-mapper", "1.x")
 
        cmd("map").action((_, c) => c.copy(operation = "map"))
          .text("Generate the mapping between two providers")
@@ -47,9 +48,9 @@ object Program {
            val src = modelFile(x.service, x.source)
            val dst = modelFile(x.service, x.destination)
 
-           if(src.exists() && dst.exists() )
+           if(src != null && dst != null )
              success
-           else if(!src.exists())
+           else if( src == null)
              failure("The model for the source provider is not available for the specified service")
            else
              failure("The model for the destination provider is not available for the specified service")
@@ -87,32 +88,15 @@ object Program {
       }
       case None =>
     }
+  }
 
-     // AZURE => AWS Storage
-//     createProxy(
-//       "./src/main/resources/azure_storage.json",
-//       "./src/main/resources/aws_storage.json",
-//       "./output.mapper",
-//       "nodeproxy")
+  private def modelFile(service: String, provider: String): InputStream = {
+    //    val f = new File(String.format("./src/main/resources/%s_%s.json", provider, service))
+    //    if( f.exists() ) new FileInputStream(f) else this.getClass().getResourceAsStream(String.format("/%s_%s.json", provider, service))
+    this.getClass().getResourceAsStream(String.format("/%s_%s.json", provider, service))
+  }
 
-     // AZURE => AWS Queue
-//     createProxy(
-//       "./src/main/resources/azure_queue.json",
-//       "./src/main/resources/aws_queue.json",
-//       "./output.mapper",
-//       "nodeproxy")
-
-     // AZURE => GOOGLE Storage
-//     createProxy(
-//       "./src/main/resources/azure_storage.json",
-//       "./src/main/resources/google_storage.json",
-//       "./output.mapper",
-//       "nodeproxy")
-   }
-
-  private def modelFile(service: String, provider: String): File = new File(String.format("./src/main/resources/%s_%s.json", provider, service))
-
-  private def generateMapping(srcData: File, dstData: File): Mapping = {
+  private def generateMapping(srcData: InputStream, dstData: InputStream): Mapping = {
     val mapper: ObjectMapper = new ObjectMapper
 
     val srcModel = mapper.readValue(srcData, classOf[Model])

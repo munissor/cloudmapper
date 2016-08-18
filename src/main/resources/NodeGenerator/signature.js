@@ -2,6 +2,7 @@
 var awsSigner = require('aws4');
 var request = require('request');
 var config = require('config');
+var crypto = require('crypto');
 var url = require('url');
 var jwt = require('jwt-simple');
 
@@ -130,132 +131,43 @@ function _azureSignRequestSync(requestData, accountName, sharedKey){
 
 
 function _azureHashRequestString(buffer, sharedKey){
+    return crypto.createHmac('SHA256', "sharedKey").update(buffer).digest('base64');
 }
 
-/*
- private static void SignRequest(HttpRequest request, String accountName, String sharedKey) throws Exception
- {
-
- StringBuffer buffer = new StringBuffer(request.getRequestLine().getMethod());
- AppendHeaderValue(buffer, request, "Content-Encoding");
- AppendHeaderValue(buffer, request, "Content-Language");
- AppendHeaderValue(buffer, request, "Content-Length");
- AppendHeaderValue(buffer, request, "Content-MD5");
- AppendHeaderValue(buffer, request, "Content-Type");
- AppendHeaderValue(buffer, request, "Date");
- AppendHeaderValue(buffer, request, "If-Modified-Since");
- AppendHeaderValue(buffer, request, "If-Match");
- AppendHeaderValue(buffer, request, "If-None-Match");
- AppendHeaderValue(buffer, request, "If-Unmodified-Since");
- AppendHeaderValue(buffer, request, "Range");
- AppendValue(buffer, BuildCanonicalizedHeaders(request));
- AppendValue(buffer, BuildCanonicalizedResource(request, accountName));
-
- String hash = HashRequestString(buffer.toString(), sharedKey);
-
- request.addHeader("Authorization", "SharedKey " + accountName + ":" + hash);
- }
-
- private static String HashRequestString(String stringToSign, String sharedKey) throws NoSuchAlgorithmException, InvalidKeyException
- {
- final Charset utf8 = Charset.forName("UTF-8");
- final Mac hmacSha256 = Mac.getInstance("HmacSHA256");
- final SecretKeySpec secret_key = new javax.crypto.spec.SecretKeySpec(Base64.getDecoder().decode(sharedKey), "HmacSHA256");
- hmacSha256.init(secret_key);
- final byte[] mac_data = hmacSha256.doFinal(stringToSign.getBytes(utf8));
-
- return Base64.getEncoder().encodeToString(mac_data);
- }
-
- private static void AppendValue(StringBuffer buffer, String value)
- {
- buffer.append("\n");
- buffer.append(value);
- }
-
-*/
-
 function _azureAppendHeaderValue(buffer, requestData, headerName) {
-    var value = requestData[headerName] || "";
+    var value = requestData.headers[headerName] || '';
     return _azureAppendValue(buffer, value);
 }
 
 function _azureAppendValue(buffer, value) {
-    return buffer + "\n" + value;
+    return buffer + '\n' + value;
 }
-
-/*
-
- private static void AppendHeaderValue(StringBuffer buffer, HttpRequest request, String headerName)
- {
- Header header = request.getFirstHeader(headerName);
- String value;
- if(header != null )
- {
- value = header.getValue();
- }
- else
- {
- value = "";
- }
- AppendValue(buffer, value);
- }
-
-
-*/
 
 function _azureBuildCanonicalizedHeaders(requestData){
     var buffer = "";
-}
+    var keys = Object.keys(requestData.headers).sort();
+    keys.forEach(function(k){
+        var lcName = k.toLowerCase();
+        if(lcName.indexOf('x-ms-') === 0){
+            if(buffer){
+                buffer = buffer + '\n';
+            }
+            buffer = buffer + lcName + ':' + requestData.headers[k];
+        }
+    });
 
-/*
-
- private static String BuildCanonicalizedHeaders(HttpRequest request)
- {
- StringBuffer buffer = new StringBuffer();
- Header[] headers = request.getAllHeaders();
- Arrays.sort(headers, (o1, o2) -> o1.getName().compareTo(o2.getName()));
-
- for (Header item : headers) {
- String lcName = item.getName().toLowerCase();
- if(lcName.startsWith("x-ms-")) {
- if (buffer.length() > 0) {
- buffer.append("\n");
- }
-
- buffer.append(lcName);
- buffer.append(":");
- buffer.append(item.getValue());
- }
- }
-
- return buffer.toString();
- }
-
-*/
-
-function _azureBuildCanonicalizedResource(requestData) {
-    var buffer = "";
     return buffer;
 }
 
-/*
- private static String BuildCanonicalizedResource(HttpRequest request, String accountName) throws Exception
- {
- StringBuffer buffer = new StringBuffer("/");
- buffer.append(accountName);
- String requestUri = request.getRequestLine().getUri();
- URI uri = new URI(requestUri);
 
- buffer.append(uri.getPath());
+function _azureBuildCanonicalizedResource(requestData, accountName) {
+    var buffer = "/" + accountName;
+    var parsedUrl = url.parse(requestData.url, true);
+    buffer = buffer + parsedUrl.path;
+    var keys = Object.keys(parsedUrl.query).sort();
+    keys.forEach(function(k){
+        buffer = _azureAppendValue(k + ':' + parsedUrl.query[k]);
+    });
 
- List<NameValuePair> params = URLEncodedUtils.parse(uri, "UTF-8");
- params.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
-
- for (NameValuePair pair : params ) {
- AppendValue(buffer, pair.getName() + ":" + pair.getValue());
- }
-
- return buffer.toString();
- }
- */
+    return buffer;
+}
