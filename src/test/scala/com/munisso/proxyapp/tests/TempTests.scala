@@ -3,11 +3,14 @@ package com.munisso.proxyapp.tests
 import java.io.File
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.munisso.proxyapp.models.Mapping
+import com.munisso.proxyapp.models.{Mapping, MappingParameter, Parameter, Types}
 import com.munisso.proxyapp.tests.utils.AzureSignature
-import scala.collection.JavaConversions._
+
+import scala.collection.JavaConverters._
 import org.junit.runners.MethodSorters
 import org.junit.{FixMethodOrder, Test}
+
+import scala.collection.mutable.ListBuffer
 
 /**
   * Created by rmunisso on 15/07/2016.
@@ -18,10 +21,44 @@ class TempTests {
   @Test
   def testCorrectness(): Unit = {
     val mapper = new ObjectMapper
-    val inputData = new File("./output.mapper")
+    val inputData = new File("/Users/rmunisso/code/college/proxyapp/output.mapper")
     val mapping = mapper.readValue(inputData, classOf[Mapping])
 
-    mapping.routes.asScala
+    mapping.routes.asScala.foreach(r => {
+      print(r.name)
+      val parseReq = flattenArguments(r.parseRequest.asScala.toList)
+      val buildReq = flattenArguments(r.buildRequest.asScala.toList)
+      val parseResp = flattenArguments(r.parseResponse.asScala.toList)
+      val buildResp = flattenArguments(r.buildResponse.asScala.toList)
+      print("\t")
+      print(parseReq.length)
+      print("\t")
+      print(buildReq.length)
+      print("\t")
+      print(parseResp.length)
+      print("\t")
+      print(buildResp.length)
+      print("\t")
+      print(r.requestErrors.size())
+      print("\t")
+      print(r.responseErrors.size())
+      println()
+
+
+
+    })
+  }
+
+  private def flattenArguments(params: List[MappingParameter]): List[MappingParameter] = {
+    params.flatMap(x => List(
+      Option(x.logicalName) match {
+        case Some(ln) => List(x)
+        case None => Nil
+      },
+      Option(x.properties) match {
+        case Some(p) => flattenArguments(x.properties.toList)
+        case None => Nil
+      })).flatten
   }
 
   @Test
