@@ -118,7 +118,8 @@ object CloudMapper {
 
   private def checkMapping(mapping: Mapping): Unit = {
     mapping.routes.foreach( x => {
-
+      print(x.name)
+      println(":")
       if(x.routeError != null){
         println(x.routeError.message)
       }
