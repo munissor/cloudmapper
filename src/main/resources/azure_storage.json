@@ -3,9 +3,9 @@
   "service": "Storage",
   "serviceType": "Blob",
   "configurations": [
-    {"key": "AccountName", "value": ""},
-    {"key": "sharedKey", "value": ""}
-  ],
+  {"key": "AccountName", "value": ""},
+  {"key": "sharedKey", "value": ""}
+],
   "signature": "azure",
   "commonParameters": {
     "request": {
@@ -25,10 +25,6 @@
         }
       ],
       "headers": [
-        {
-          "name": "Authorization",
-          "kind": "Signature"
-        },
         {
           "name": "Date",
           "aliases": ["x-ms-date"],
@@ -214,11 +210,7 @@
         }
       }
     },
-    {"name": "GetBlobServiceProperties", "request": {}, "response" :{}},
-    {"name": "SetBlobServiceProperties", "request": {}, "response" :{}},
-    {"name": "PreflightBlogRequest", "request": {}, "response" :{}},
-    {"name": "GetBlobServiceStats", "request": {}, "response" :{}},
-    {"name": "GetContainerProperties", "request": {}, "response" :{}},
+
     {
       "name": "PutContainer",
       "request": {
@@ -303,12 +295,7 @@
         "body": null
       }
     },
-    {"name": "GetContainerProperties", "request": {}, "response" :{}},
-    {"name": "GetContainerMetadata", "request": {}, "response" :{}},
-    {"name": "SetContainerMetadata", "request": {}, "response" :{}},
-    {"name": "GetContainerACL", "request": {}, "response" :{}},
-    {"name": "SetContainerACL", "request": {}, "response" :{}},
-    {"name": "LeaseContainer", "request": {}, "response" :{}},
+
     {
       "name": "ListBlobs",
       "request": {
@@ -377,7 +364,76 @@
             "kind": "String"
           }
         ],
-        "body": null
+        "body": {
+          "name": "EnumerationResults",
+          "kind": "Object",
+          "properties": [
+            {
+              "name": "Prefix",
+              "logicalName": "ObjectFilter",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "Delimiter",
+              "logicalName": "Delimiter",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "NextMarker",
+              "logicalName": "PaginationToken",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "MaxResults",
+              "logicalName": "PaginationSize",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "Blobs",
+              "kind": "Object",
+              "properties": [
+                {
+                  "name": "Blob",
+                  "logicalName": "Blob",
+                  "kind": "Object",
+                  "multiple": true,
+                  "properties": [
+                    {
+                      "name": "Key",
+                      "logicalName": "Blob.Name",
+                      "kind": "String"
+                    },
+                    {
+                      "name": "Properties",
+                      "kind": "Object",
+                      "properties": [
+                        {
+                          "name": "LastModified",
+                          "logicalName": "Blob.LastModifiedDate",
+                          "kind": "Date"
+                        },
+                        {
+                          "name": "ETag",
+                          "logicalName": "Blob.ETag",
+                          "kind": "String"
+                        },
+                        {
+                          "name": "Content-Length",
+                          "logicalName": "Blob.Size",
+                          "kind": "Number"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
       }
     },
     {
@@ -536,16 +592,6 @@
         ],
         "body": null
       }
-    },
-    {"name": "LeaseBlob", "request": {}, "response" :{}},
-    {"name": "SnapshotBlob", "request": {}, "response" :{}},
-    {"name": "CopyBlob", "request": {}, "response" :{}},
-    {"name": "AbortCopyBlob", "request": {}, "response" :{}},
-    {"name": "PutBlock", "request": {}, "response" :{}},
-    {"name": "PutBlockList", "request": {}, "response" :{}},
-    {"name": "GetBlockList", "request": {}, "response" :{}},
-    {"name": "PutPage", "request": {}, "response" :{}},
-    {"name": "GetPageRanges", "request": {}, "response" :{}},
-    {"name": "AppendBlock", "request": {}, "response" :{}}
+    }
   ]
 }

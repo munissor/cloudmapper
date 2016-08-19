@@ -45,12 +45,7 @@
         "urlReplacements": [],
         "queryString": [],
         "headers":[
-          {
-            "name": "Authorization",
-            "logicalName": "Authorization",
-            "kind": "Signature"
-          },
-          {
+         {
             "name": "Date",
             "logicalName": "Date",
             "kind": "Date",
@@ -138,11 +133,6 @@
         ],
         "headers":[
           {
-            "name": "Authorization",
-            "logicalName": "Authorization",
-            "kind": "Signature"
-          },
-          {
             "name": "Date",
             "logicalName": "Date",
             "kind": "Date",
@@ -195,11 +185,6 @@
         ],
         "headers":[
           {
-            "name": "Authorization",
-            "logicalName": "Authorization",
-            "kind": "Signature"
-          },
-          {
             "name": "Date",
             "logicalName": "Date",
             "kind": "Date",
@@ -220,7 +205,7 @@
       }
     },
     {
-      "name": "ListObjects",
+      "name": "ListBlobs",
       "request": {
         "verb": "GET",
         "url": "s3.amazonaws.com/{name}",
@@ -253,7 +238,124 @@
       "response": {
         "headers": [
         ],
-        "body": null
+        "body": {
+          "name": "ListBucketResult",
+          "kind": "Object",
+          "properties": [
+            {
+              "name": "Prefix",
+              "logicalName": "ObjectFilter",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "Delimiter",
+              "logicalName": "Delimiter",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "Marker",
+              "logicalName": "SpecifiedPaginationToken",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "NextMarker",
+              "logicalName": "PaginationToken",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "MaxKeys",
+              "logicalName": "PaginationSize",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "GenerationMarker",
+              "logicalName": "SpecifiedGenerationMarker",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "NextGenerationMarker",
+              "logicalName": "GenerationMarker",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "Contents",
+              "logicalName": "Blob",
+              "kind": "Object",
+              "multiple": true,
+              "properties": [
+                {
+                  "name": "Owner",
+                  "kind": "Object",
+                  "properties": [
+                    {
+                      "name": "ID",
+                      "logicalName": "OwnerId",
+                      "kind": "String"
+                    },
+                    {
+                      "name": "DisplayName",
+                      "logicalName": "OwnerName",
+                      "kind": "String"
+                    }
+                  ]
+                },
+                {
+                  "name": "Key",
+                  "logicalName": "Blob.Name",
+                  "kind": "String"
+                },
+                {
+                  "name": "LastModified",
+                  "logicalName": "Blob.LastModifiedDate",
+                  "kind": "Date"
+                },
+                {
+                  "name": "ETag",
+                  "logicalName": "Blob.ETag",
+                  "kind": "String"
+                },
+                {
+                  "name": "Generation",
+                  "logicalName": "Blob.Generation",
+                  "kind": "Number"
+                },
+                {
+                  "name": "MetaGeneration",
+                  "logicalName": "Blob.MetaGeneration",
+                  "kind": "Number"
+                },
+                {
+                  "name": "IsLatest",
+                  "logicalName": "Blob.IsLatest",
+                  "kind": "Boolean",
+                  "optional": true
+                },
+                {
+                  "name": "Size",
+                  "logicalName": "Blob.Size",
+                  "kind": "Number"
+                },
+                {
+                  "name": "DeletedTime",
+                  "logicalName": "Blob.DeletedTime",
+                  "kind": "Date"
+                },
+                {
+                  "name": "StorageClass",
+                  "logicalName": "Blob.StorageClass",
+                  "kind": "String"
+                }
+              ]
+            }
+          ]
+        }
       }
     },
     {
@@ -277,11 +379,6 @@
 
         ],
         "headers": [
-          {
-            "name": "Authorization",
-            "logicalName": "Authorization",
-            "kind": "Signature"
-          },
           {
             "name": "Date",
             "logicalName": "Date",
@@ -333,11 +430,6 @@
         ],
         "headers": [
           {
-            "name": "Authorization",
-            "logicalName": "Authorization",
-            "kind": "Signature"
-          },
-          {
             "name": "Date",
             "logicalName": "Date",
             "kind": "Date",
@@ -378,11 +470,6 @@
         ],
         "headers": [
           {
-            "name": "Authorization",
-            "logicalName": "Authorization",
-            "kind": "Signature"
-          },
-          {
             "name": "Date",
             "logicalName": "Date",
             "kind": "Date",
@@ -406,10 +493,7 @@
         ],
         "body": null
       }
-    },
-    {"name": "GetContainerMetadata", "request": {}, "response" :{}},
-    {"name": "SetContainerMetadata", "request": {}, "response" :{}},
-    {"name": "GetContainerACL", "request": {}, "response" :{}}
+    }
 
   ]
 }

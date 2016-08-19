@@ -1,6 +1,11 @@
 package com.munisso.proxyapp.tests
 
+import java.io.File
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.munisso.proxyapp.models.Mapping
 import com.munisso.proxyapp.tests.utils.AzureSignature
+import scala.collection.JavaConversions._
 import org.junit.runners.MethodSorters
 import org.junit.{FixMethodOrder, Test}
 
@@ -9,6 +14,15 @@ import org.junit.{FixMethodOrder, Test}
   */
 //@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class TempTests {
+
+  @Test
+  def testCorrectness(): Unit = {
+    val mapper = new ObjectMapper
+    val inputData = new File("./output.mapper")
+    val mapping = mapper.readValue(inputData, classOf[Mapping])
+
+    mapping.routes.asScala
+  }
 
   @Test
   def test(): Unit = {

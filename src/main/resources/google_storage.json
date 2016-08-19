@@ -3,6 +3,41 @@
   "service": "Storage",
   "serviceType": "Blob",
   "signature": "google-service-token",
+  "configurations": [
+    {"key": "account", "value": ""},
+    {"key": "scope", "value": ""},
+    {"key": "privateKey", "value": ""},
+    {"key": "ProjectId", "value": ""}
+  ],
+  "commonParameters": {
+    "request": {
+      "headers": [
+        {
+          "name": "Date",
+          "logicalName": "Date",
+          "kind": "Date",
+          "format": "iso8601"
+        },
+        {
+          "name": "x-goog-project-id",
+          "logicalName": "ProjectId",
+          "kind": "String",
+          "fallback": "Config"
+        }
+      ]
+    },
+    "response": {
+      "headers": [
+        {
+          "name": "Date",
+          "logicalName": "Date",
+          "kind": "Date",
+          "format": "iso8601"
+        }
+      ]
+    }
+  },
+
   "operations": [
     {
       "name": "ListContainers",
@@ -14,22 +49,6 @@
         "queryString": [
         ],
         "headers": [
-          {
-            "name": "Authorization",
-            "logicalName": "x",
-            "kind": "Signature"
-          },
-          {
-            "name": "Date",
-            "logicalName": "Date",
-            "kind": "Date"
-          },
-          {
-            "name": "x-goog-project-id",
-            "logicalName": "ProjectId",
-            "kind": "String",
-            "fallback": "Config"
-          },
           {
             "name": "Content-Length",
             "logicalName": "ContentLength",
@@ -45,11 +64,6 @@
             "name": "Content-Type",
             "logicalName": "ContentType",
             "kind": "String"
-          },
-          {
-            "name": "Date",
-            "logicalName": "Date",
-            "kind": "Date"
           }
         ],
         "body": {
@@ -114,31 +128,40 @@
           }
         ],
         "queryString": [
-
         ],
         "headers":[
           {
-            "name": "Authorization",
-            "logicalName": "Authorization",
-            "kind": "Signature"
-          },
-          {
-            "name": "Date",
-            "logicalName": "Date",
-            "kind": "Date",
-            "format": "iso8601"
-          },
-          {
-            "name": "x-goog-project-id",
-            "logicalName": "ProjectId",
-            "kind": "String",
-            "fallback": "Config"
+            "name": "Content-Length",
+            "logicalName": "ContentLength",
+            "kind": "Number"
           }
         ],
-        "body": null
+        "body": {
+          "name": "CreateBucketConfiguration",
+          "kind": "Object",
+          "properties": [
+            {
+              "name": "LocationConstraint",
+              "logicalName": "LocationConstraint",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "StorageClass",
+              "logicalName": "StorageClass",
+              "kind": "String",
+              "optional": true
+            }
+          ]
+        }
       },
       "response": {
         "headers": [
+          {
+            "name": "Content-Length",
+            "logicalName": "ContentLength",
+            "kind": "Number"
+          }
         ],
         "body": null
       }
@@ -160,7 +183,309 @@
         "queryString": [
         ],
         "headers":[
+          {
+            "name": "Content-Length",
+            "logicalName": "ContentLength",
+            "kind": "Number",
+            "value": 0
+          }
+        ],
+        "body": null
+      },
+      "response": {
+        "headers": [
+        ],
+        "body": null
+      }
+    },
 
+    {
+      "name": "ListBlobs",
+      "request": {
+        "verb": "GET",
+        "url": "storage.googleapis.com/{name}",
+        "urlReplacements": [
+        ],
+        "queryString": [
+          {
+            "name": "prefix",
+            "logicalName": "ObjectFilter",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "delimiter",
+            "logicalName": "Delimiter",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "marker",
+            "logicalName": "PaginationToken",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "max-keys",
+            "logicalName": "PaginationSize",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "generation-marker",
+            "logicalName": "GenerationMarker",
+            "kind": "String",
+            "optional": true
+          },
+          {
+            "name": "versions",
+            "logicalName": "Versions",
+            "kind": "Boolean",
+            "optional": true
+          }
+
+        ],
+        "headers":[
+        ],
+        "body": null
+      },
+      "response": {
+        "headers": [
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String"
+          }
+        ],
+        "body": {
+          "name": "ListBucketResult",
+          "kind": "Object",
+          "properties": [
+            {
+              "name": "Prefix",
+              "logicalName": "ObjectFilter",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "Delimiter",
+              "logicalName": "Delimiter",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "Marker",
+              "logicalName": "SpecifiedPaginationToken",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "NextMarker",
+              "logicalName": "PaginationToken",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "MaxKeys",
+              "logicalName": "PaginationSize",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "GenerationMarker",
+              "logicalName": "SpecifiedGenerationMarker",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "NextGenerationMarker",
+              "logicalName": "GenerationMarker",
+              "kind": "String",
+              "optional": true
+            },
+            {
+              "name": "Contents",
+              "logicalName": "Blob",
+              "kind": "Object",
+              "multiple": true,
+              "properties": [
+                {
+                  "name": "Owner",
+                  "kind": "Object",
+                  "properties": [
+                    {
+                      "name": "ID",
+                      "logicalName": "OwnerId",
+                      "kind": "String"
+                    },
+                    {
+                      "name": "DisplayName",
+                      "logicalName": "OwnerName",
+                      "kind": "String"
+                    }
+                  ]
+                },
+                {
+                  "name": "Key",
+                  "logicalName": "Blob.Name",
+                  "kind": "String"
+                },
+                {
+                  "name": "LastModified",
+                  "logicalName": "Blob.LastModifiedDate",
+                  "kind": "Date"
+                },
+                {
+                  "name": "ETag",
+                  "logicalName": "Blob.ETag",
+                  "kind": "String"
+                },
+                {
+                  "name": "Generation",
+                  "logicalName": "Blob.Generation",
+                  "kind": "Number"
+                },
+                {
+                  "name": "MetaGeneration",
+                  "logicalName": "Blob.MetaGeneration",
+                  "kind": "Number"
+                },
+                {
+                  "name": "IsLatest",
+                  "logicalName": "Blob.IsLatest",
+                  "kind": "Boolean",
+                  "optional": true
+                },
+                {
+                  "name": "Size",
+                  "logicalName": "Blob.Size",
+                  "kind": "Number"
+                },
+                {
+                  "name": "DeletedTime",
+                  "logicalName": "Blob.DeletedTime",
+                  "kind": "Date"
+                },
+                {
+                  "name": "StorageClass",
+                  "logicalName": "Blob.StorageClass",
+                  "kind": "String"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "CreateBlob",
+      "request": {
+        "verb": "PUT",
+        "url": "storage.googleapis.com/{container}/{name}",
+        "urlReplacements": [
+          {
+            "name": "container",
+            "logicalName": "ContainerName",
+            "kind": "String"
+          },
+          {
+            "name": "name",
+            "logicalName": "ObjectName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+
+        ],
+        "headers": [
+          {
+            "name": "Content-MD5",
+            "logicalName": "ContentMD5",
+            "kind": "String",
+            "optional": true
+          }
+        ],
+        "body": {
+          "name": "",
+          "logicalName": "BlobContent",
+          "kind": "Binary"
+        }
+      },
+      "response": {
+        "headers": [
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String"
+          },
+          {
+            "name": "ETag",
+            "logicalName": "ETag",
+            "kind": "String"
+          }
+        ],
+        "body": null
+      }
+    },
+    {
+      "name": "GetBlob",
+      "request": {
+        "verb": "GET",
+        "url": "storage.googleapis.com/{container}/{name}",
+        "urlReplacements": [
+          {
+            "name": "container",
+            "logicalName": "ContainerName",
+            "kind": "String"
+          },
+          {
+            "name": "name",
+            "logicalName": "ObjectName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+        ],
+        "headers": [
+        ],
+        "body": null
+      },
+      "response": {
+        "headers": [
+          {
+            "name": "Content-Type",
+            "logicalName": "ContentType",
+            "kind": "String"
+          }
+        ],
+        "body": {
+          "name": "",
+          "logicalName": "BlobContent",
+          "kind": "Binary"
+        }
+      }
+    },
+    {
+      "name": "DeleteBlob",
+      "request": {
+        "verb": "DELETE",
+        "url": "storage.googleapis.com/{container}/{name}",
+        "urlReplacements": [
+          {
+            "name": "container",
+            "logicalName": "ContainerName",
+            "kind": "String"
+          },
+          {
+            "name": "name",
+            "logicalName": "ObjectName",
+            "kind": "String"
+          }
+        ],
+        "queryString": [
+
+        ],
+        "headers": [
         ],
         "body": null
       },
